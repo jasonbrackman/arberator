@@ -18,18 +18,27 @@ class System:
         self.current: Folder = self.root
         self.ignore: List[int] = []
 
+    @staticmethod
+    def _normalize(path: str) -> List[str]:
+        normalized = os.path.normpath(path.replace("\\", "/"))
+        return normalized.split(os.sep)
+
     def mkdirs(self, path: str) -> None:
         """Takes a string of a normalized relative to cwd and adds the directories
         one at a time."""
+
+        visited = {d.name: d for d in self.current.folders()}
+
         # hold onto the current directory
         current = self.current
         current_level = self.level
 
-        normalized = os.path.normpath(path.replace("\\", "/"))
-        new_folders = normalized.split(os.sep)
-        for new_folder in new_folders:
-            self.current.folder(new_folder, self.level + 1)
-            self.cd(new_folder)
+        path_parts = self._normalize(path)
+        for part in path_parts:
+            if part not in visited:
+                visited[part] = Folder(part, self.level + 1, parent=self.current)
+                self.current.folder(visited[part])
+            self.cd(visited[part].name)
 
         # return to starting directory
         self.current = current
@@ -37,19 +46,39 @@ class System:
 
     def mkfiles(self, files: List[str]) -> None:
         """Takes one or more filenames and adds them to the cwd."""
+        visited = {f.name for f in self.current.files()}
         for file in files:
-            self.current.file(file, self.level + 1)
+            if file not in visited:
+                visited.add(file)
+                self.current.file(file, self.level + 1)
+
+    def cwd(self):
+        r = []
+        visited = set()
+        q = [self.current]
+        while q:
+            n = q.pop()
+            if n.name is not None:
+                r.append(n.name)
+            visited.add(n)
+            if n.parent() not in visited:
+                q.append(n.parent())
+
+        print("//".join(r[::-1]))
 
     def cd(self, path: str) -> None:
-        if path == "..":
-            self.current = self.current.parent()
-            self.level -= 1
-        # is it in the current folder?
-        for folder in self.current.folders():
-            if folder.name == path:
-                self.current = folder
+        path_parts = self._normalize(path)
+        for part in path_parts:
+            if part == "..":
+                self.current = self.current.parent()
                 self.level = self.current.level
-                return None
+            else:
+                # is it in the current folder?
+                for folder in self.current.folders():
+                    if folder.name == part:
+                        self.current = folder
+                        self.level = self.current.level
+                        break
 
     def _pp(self, node):
         """

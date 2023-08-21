@@ -1,15 +1,14 @@
-from arber import System
+from arbor import System
 
 s = System("root")
-s.mkfiles(["README.md"])
-s.mkdirs("music/")
-s.cd("music")
-s.mkfiles(["fizz.mp3", "bang.mp3", "pop.wav"])
-s.cd("..")
-s.mkdirs("files\docs")
-s.cd("files")
-s.mkfiles([".ignore"])
-s.cd("docs")
+s.mkfiles(["README.md", "LICENSE.md", ".ignore"])
+
+s.mkdirs("files/docs")
+s.mkdirs("files/music")
+
+s.cd("files/docs")
 s.mkfiles(["resume.txt", "recipe.wrd"])
 
+s.cd("../../files/music")
+s.mkfiles(["bing.mp3", "bang.mp3", "bop.wav"])
 s.display()

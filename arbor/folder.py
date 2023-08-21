@@ -25,8 +25,8 @@ class Folder:
     def file(self, file: str, level: int) -> None:
         self._files.append(File(file, level))
 
-    def folder(self, folder: str, level: int) -> None:
-        self._folders.append(Folder(folder, level, self))
+    def folder(self, folder: Folder) -> None:
+        self._folders.append(folder)
 
     def contents(self) -> Sequence[Union[File, Folder]]:
         items = []
@@ -38,3 +38,6 @@ class Folder:
 
     def folders(self) -> List[Folder]:
         return sorted(self._folders[::])
+
+    def files(self) -> List[File]:
+        return sorted(self._files[::])
