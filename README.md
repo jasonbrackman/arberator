@@ -47,9 +47,12 @@ Example:
 from arbor import System, MarkdownRenderer 
 
 s = System("root")
-s.renderer = MarkdownRenderer() 
-s = System("root")
 s.mkfiles(["README.md", "LICENSE.md", ".ignore"])
+
+# can be overriden at any time before display()
+s.renderer = MarkdownRenderer()
+  
+s.display()
 ```
 Produces:
 ```
