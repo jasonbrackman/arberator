@@ -1,5 +1,5 @@
 from arbor import System
-from arbor.renderer import MarkdownRenderer, DefaultRenderer
+from arbor.renderer import MarkdownRenderer
 
 s = System("root")
 s.mkfiles(["README.md", "LICENSE.md", ".ignore"])
@@ -16,6 +16,6 @@ s.mkfiles(["bing.mp3", "bang.mp3", "bop.wav"])
 # Generate a tree structure to be printed to stdout as text.
 s.display()
 
-# Override the renderer and print a tree structure using Markdown sugar.
+# Generate a tree structure to be printed with some Markdown sugar.
 s.renderer = MarkdownRenderer()
 s.display()
