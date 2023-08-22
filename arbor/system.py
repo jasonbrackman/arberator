@@ -1,10 +1,11 @@
 import os.path
 import sys
-from typing import List, Union
+from typing import List, Union, Set, Optional
 
 from .constants import PIPE, SPACE_PREFIX, ELBOW, TEE
 from .file import File
 from .folder import Folder
+from .renderer import Renderer, DefaultRenderer
 
 """
 A System is created to simulate and generate a listing of directory/files.
@@ -12,11 +13,22 @@ A System is created to simulate and generate a listing of directory/files.
 
 
 class System:
+    """A System is a representation of a file system. Generates a tree structure to be printed."""
+
     def __init__(self, name: str):
         self.level = 0
         self.root = Folder(name, self.level)
         self.current: Folder = self.root
-        self.ignore: List[int] = []
+        self.ignore: Set[int] = set()
+        self._renderer: Renderer = DefaultRenderer()
+
+    @property
+    def renderer(self) -> Optional[Renderer]:
+        return self._renderer
+
+    @renderer.setter
+    def renderer(self, renderer: Renderer) -> None:
+        self._renderer = renderer
 
     @staticmethod
     def _normalize(path: str) -> List[str]:
@@ -39,6 +51,7 @@ class System:
                 visited[part] = Folder(part, self.level + 1, parent=self.current)
                 self.current.folder(visited[part])
             self.cd(visited[part].name)
+            visited = {d.name: d for d in self.current.folders()}
 
         # return to starting directory
         self.current = current
@@ -53,6 +66,7 @@ class System:
                 self.current.file(file, self.level + 1)
 
     def cwd(self):
+        """Prints the current working directory."""
         r = []
         visited = set()
         q = [self.current]
@@ -67,6 +81,7 @@ class System:
         print("//".join(r[::-1]))
 
     def cd(self, path: str) -> None:
+        """Takes a string of a normalized relative to cwd and changes the current"""
         path_parts = self._normalize(path)
         for part in path_parts:
             if part == "..":
@@ -80,11 +95,12 @@ class System:
                         self.level = self.current.level
                         break
 
-    def _pp(self, node):
+    def _pp(self, node: Union[File, Folder]) -> str:
         """
         Pretty print the node passed in. Bookkeeping of dead and last items are tracked
         to reveal content information in an aesthetic way.
         """
+
         parts = [PIPE + SPACE_PREFIX for _ in range(node.level)]
         for index in self.ignore:
             if len(parts) > index - 1:
@@ -93,17 +109,32 @@ class System:
         if parts:
             parts[-1] = ELBOW if node.last is True else TEE
 
-        end = "\\" if isinstance(node, Folder) else ""
+        is_file = isinstance(node, File)
+        file_open = self._renderer.file_open if is_file else ""
+        file_close = self._renderer.file_close if is_file else ""
 
-        return f'{"".join(parts)}{node.name}{end}'
+        # checking for Folder type
+        end = "\\" if not is_file else ""
+
+        return f'{"".join(parts)}{file_open}{node.name}{file_close}{end}'
 
     def display(self) -> None:
+        """Prints the directory structure to stdout."""
+        sys.stdout.write(self._renderer.doc_open + "\n")
+
         q: List[Union[File, Folder]] = [self.root]
         while q:
             node = q.pop()
+            if node.last is False:
+                if node.level in self.ignore:
+                    self.ignore.remove(node.level)
+
             sys.stdout.write(self._pp(node) + "\n")
             if node.last is True:
                 # track the nodes that no longer have children.
-                self.ignore.append(node.level)
+                self.ignore.add(node.level)
+
             if isinstance(node, Folder):
                 q += node.contents()
+
+        sys.stdout.write(self._renderer.doc_close + "\n")
