@@ -71,6 +71,8 @@ from arbor import Renderer
 class MyCustomRenderer(Renderer):
     ...
 ```
+## Install Using Pip
+>pip install fictus
 
 ## Building/installing the Wheel:
 To build the package requires setuptools and build.
