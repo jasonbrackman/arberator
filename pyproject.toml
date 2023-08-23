@@ -3,10 +3,10 @@ requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "arbor"
+name = "fictus"
 version = "0.0.1"
 authors = [
-  { name="Jason Brackman", email="asdf@asdf.ca" },
+  { name="Jason Brackman", email="brackman+fictus@gmail.com" },
 ]
 description = "Generate a fake directory structure to be output for the purpose of documentation."
 readme = "README.md"
@@ -16,3 +16,6 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
 ]
+
+[project.urls]
+Homepage = "https://github.com/jasonbrackman/fictus"

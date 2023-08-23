@@ -1,11 +1,10 @@
-# Arbor
+# Fictus
 
-
-Arbor can create a dummy Tree view for the purposes of documentation.
+Fictus generates a fake Tree View to stdout for the purpose of documentation.
 
 Example:
 ```
-from arbor import System
+from fictus import System
 
 s = System("root")
 s.mkfiles(["README.md", "LICENSE.md", ".ignore"])
@@ -66,7 +65,7 @@ root\
 Custom Renderer classes can be constructed as long as the 
 Abstract Renderer class is used.  For example:
 
-```commandline
+```
 from arbor import Renderer
 
 class MyCustomRenderer(Renderer):
@@ -78,4 +77,4 @@ To build the package requires setuptools and build.
 >python3 -m build
 
 Once built:
->pip install dist/arbor-0.0.1-py3-none-any.whl --force-reinstall
+>pip install dist/fictus-0.0.1-py3-none-any.whl --force-reinstall

@@ -1,5 +1,5 @@
-from arbor import System
-from arbor.renderer import MarkdownRenderer
+from fictus import System
+from fictus.renderer import MarkdownRenderer
 
 s = System("root")
 s.mkfiles(["README.md", "LICENSE.md", ".ignore"])
