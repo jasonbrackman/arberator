@@ -6,6 +6,7 @@ from .file import File
 
 class Folder:
     """A Folder is a node in a tree structure. It can contain other Folders and Files."""
+
     def __init__(self, name: str, level: int, parent=None):
         self.name = name
         self.level = level
@@ -17,11 +18,16 @@ class Folder:
     def __lt__(self, other: Folder) -> bool:
         return self.name > other.name
 
+    @property
     def parent(self) -> Folder:
         """Don't allow the user to go further than root."""
         if self._parent is None:
             return self
         return self._parent
+
+    @parent.setter
+    def parent(self, other: Optional[Folder]) -> None:
+        self._parent = other
 
     def file(self, file: str, level: int) -> None:
         """Adds a file to the current Folder."""

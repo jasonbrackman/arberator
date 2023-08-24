@@ -65,8 +65,14 @@ class System:
                 visited.add(file)
                 self.current.file(file, self.level + 1)
 
+    def rename(self, old: str, new: str) -> None:
+        for f in self.current.contents():
+            if f.name == old:
+                f.name = new
+                break
+
     def cwd(self):
-        """Prints the current working directory."""
+        """Returns the current working directory."""
         r = []
         visited = set()
         q = [self.current]
@@ -75,17 +81,23 @@ class System:
             if n.name is not None:
                 r.append(n.name)
             visited.add(n)
-            if n.parent() not in visited:
-                q.append(n.parent())
+            if n.parent not in visited:
+                q.append(n.parent)
 
-        print("//".join(r[::-1]))
+        return "/".join(r[::-1])
 
     def cd(self, path: str) -> None:
         """Takes a string of a normalized relative to cwd and changes the current"""
+        if path == "/":
+            # go to root
+            while self.current.parent != self.current:
+                self.current = self.current.parent
+            return None
+
         path_parts = self._normalize(path)
         for part in path_parts:
             if part == "..":
-                self.current = self.current.parent()
+                self.current = self.current.parent
                 self.level = self.current.level
             else:
                 # is it in the current folder?
@@ -94,6 +106,7 @@ class System:
                         self.current = folder
                         self.level = self.current.level
                         break
+        return None
 
     def _pp(self, node: Union[File, Folder]) -> str:
         """
@@ -118,18 +131,34 @@ class System:
 
         return f'{"".join(parts)}{file_open}{node.name}{file_close}{end}'
 
+    def _display_header(self) -> int:
+        """Writes the CWD to stdout with forward slashes and
+        returns the length of."""
+
+        parts = self.cwd().split("/")
+        if len(parts) > 1:
+            header = "" if len(parts) <= 1 else "\\".join(parts[:-1])
+            sys.stdout.write(header + "\\" + "\n")
+            return len(header) - len(parts[-1])
+        return 0
+
     def display(self) -> None:
         """Prints the directory structure to stdout."""
         sys.stdout.write(self._renderer.doc_open + "\n")
+        header_length = self._display_header()
 
-        q: List[Union[File, Folder]] = [self.root]
+        q: List[Union[File, Folder]] = [self.current]
+        self.ignore = {i for i in range(self.level)}
         while q:
             node = q.pop()
             if node.last is False:
                 if node.level in self.ignore:
                     self.ignore.remove(node.level)
+            line = self._pp(node)
+            new_line = line.lstrip(" ")
+            max_s = max((len(line) - len(new_line)), header_length)
 
-            sys.stdout.write(self._pp(node) + "\n")
+            sys.stdout.write((max_s * " ") + new_line + "\n")
             if node.last is True:
                 # track the nodes that no longer have children.
                 self.ignore.add(node.level)
