@@ -6,18 +6,23 @@ Example:
 ```
 from fictus import System
 
-s = System("root")
-s.mkfiles(["README.md", "LICENSE.md", ".ignore"])
 
-s.mkdirs("files/docs")
-s.mkdirs("files/music")
+s = System("root")
+s.mkfile("README.md", "LICENSE.md", ".ignore")
+
+s.mkdir("files/docs")
+s.mkdir("files/music")
 
 s.cd("files/docs")
-s.mkfiles(["resume.txt", "recipe.wrd"])
+s.mkfile("resume.txt", "recipe.wrd")
 
 s.cd("../../files/music")
-s.mkfiles(["bing.mp3", "bang.mp3", "bop.wav"])
+s.mkfile("bing.mp3", "bang.mp3", "bop.wav")
 
+# jump to root
+s.cd("/")
+
+# Generate a tree structure to be printed to stdout as text.
 s.display()
 
 ```
@@ -37,46 +42,54 @@ root\
 └─ README.md
 ```
 
+The tree displayed starts at current working directory. The same example
+above with the current directory set to "root/files/docs" produces:
+```
+root\files\
+     ├─ docs\
+     │  ├─ recipe.wrd
+     │  └─ resume.txt
+```
 The way the Tree is displayed can be manipulated by overriding the Renderer.
-The default renderer will display the Tree as simple text.  An alternative
-MarkdownRenderer is also included and can be used to override the default.
+The default renderer will display the Tree as simple text.  But you can override
+the settings to display the Tree as HTML, Markdown, or any other format you want.
 
 Example:
 ```
-from arbor import System, MarkdownRenderer 
+# Use the customRenderer
+from fictus.renderer import Renderer
 
-s = System("root")
-s.mkfiles(["README.md", "LICENSE.md", ".ignore"])
+customRenderer = Renderer(
+    "", "",  # Doc open/close
+    "📄", "",  # File open/close
+    "📁", "",  # Folder open/close
+)
 
-# can be overriden at any time before display()
-s.renderer = MarkdownRenderer()
-  
+s.renderer = customRenderer
 s.display()
 ```
 Produces:
 ```
-<pre style="line-height:17px">
-root\
-├─ <span style="color:gray">.ignore</span>
-├─ <span style="color:gray">LICENSE.md</span>
-└─ <span style="color:gray">README.md</span>
-</pre>
+📁root\
+├─ 📁files\
+│  ├─ 📁docs\
+│  │  ├─ 📄recipe.wrd
+│  │  └─ 📄resume.txt
+│  └─ 📁music\
+│     ├─ 📄bang.mp3
+│     ├─ 📄bing.mp3
+│     └─ 📄bop.wav
+├─ 📄.ignore
+├─ 📄LICENSE.md
+└─ 📄README.md
 ```
-Custom Renderer classes can be constructed as long as the 
-Abstract Renderer class is used.  For example:
 
-```
-from arbor import Renderer
-
-class MyCustomRenderer(Renderer):
-    ...
-```
 ## Install Using Pip
 >pip install fictus
 
-## Building/installing the Wheel:
+## Building/installing the Wheel locally:
 To build the package requires setuptools and build.
 >python3 -m build
 
 Once built:
->pip install dist/fictus-0.0.1-py3-none-any.whl --force-reinstall
+>pip install dist/fictus-*.whl --force-reinstall

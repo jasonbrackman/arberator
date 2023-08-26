@@ -1,15 +1,13 @@
+"""A System is created to simulate and generate a listing of directory/files. """
+
 import os.path
 import sys
-from typing import List, Union, Set, Optional
+from typing import List, Union, Set, Optional, Tuple
 
-from .constants import PIPE, SPACE_PREFIX, ELBOW, TEE
+from .constants import PIPE, SPACE_PREFIX, ELBOW, TEE, ROOT
 from .file import File
 from .folder import Folder
-from .renderer import Renderer, DefaultRenderer
-
-"""
-A System is created to simulate and generate a listing of directory/files.
-"""
+from .renderer import Renderer, defaultRenderer
 
 
 class System:
@@ -20,24 +18,26 @@ class System:
         self.root = Folder(name, self.level)
         self.current: Folder = self.root
         self.ignore: Set[int] = set()
-        self._renderer: Renderer = DefaultRenderer()
+        self._renderer: Renderer = defaultRenderer
 
     @property
     def renderer(self) -> Optional[Renderer]:
+        """Returns the renderer used to display the Tree Structure."""
         return self._renderer
 
     @renderer.setter
     def renderer(self, renderer: Renderer) -> None:
+        """Sets the renderer used to display the Tree Structure."""
         self._renderer = renderer
 
     @staticmethod
-    def _normalize(path: str) -> List[str]:
-        normalized = os.path.normpath(path.replace("\\", "/"))
-        return normalized.split(os.sep)
+    def _normalize(path: str) -> str:
+        return os.path.normpath(path.replace("\\", "/"))
 
-    def mkdirs(self, path: str) -> None:
+    def mkdir(self, path: str) -> None:
         """Takes a string of a normalized relative to cwd and adds the directories
         one at a time."""
+        normalized_path = self._normalize(path)
 
         visited = {d.name: d for d in self.current.folders()}
 
@@ -45,8 +45,7 @@ class System:
         current = self.current
         current_level = self.level
 
-        path_parts = self._normalize(path)
-        for part in path_parts:
+        for part in normalized_path.split(os.sep):
             if part not in visited:
                 visited[part] = Folder(part, self.level + 1, parent=self.current)
                 self.current.folder(visited[part])
@@ -57,22 +56,23 @@ class System:
         self.current = current
         self.level = current_level
 
-    def mkfiles(self, files: List[str]) -> None:
+    def mkfile(self, *files: Union[str, Tuple[str, ...]]) -> None:
         """Takes one or more filenames and adds them to the cwd."""
-        visited = {f.name for f in self.current.files()}
+        visited: Set[str] = {f.name for f in self.current.files()}
         for file in files:
             if file not in visited:
                 visited.add(file)
                 self.current.file(file, self.level + 1)
 
     def rename(self, old: str, new: str) -> None:
-        for f in self.current.contents():
-            if f.name == old:
-                f.name = new
+        """Renames a File or Folder based on its name."""
+        for content in self.current.contents():
+            if content.name == old:
+                content.name = new
                 break
 
     def cwd(self):
-        """Returns the current working directory."""
+        """Prints the current working directory."""
         r = []
         visited = set()
         q = [self.current]
@@ -88,14 +88,15 @@ class System:
 
     def cd(self, path: str) -> None:
         """Takes a string of a normalized relative to cwd and changes the current"""
-        if path == "/":
+        normalized_path = self._normalize(path)
+
+        if normalized_path == ROOT:
             # go to root
             while self.current.parent != self.current:
                 self.current = self.current.parent
             return None
 
-        path_parts = self._normalize(path)
-        for part in path_parts:
+        for part in normalized_path.split(os.sep):
             if part == "..":
                 self.current = self.current.parent
                 self.level = self.current.level
@@ -123,8 +124,10 @@ class System:
             parts[-1] = ELBOW if node.last is True else TEE
 
         is_file = isinstance(node, File)
-        file_open = self._renderer.file_open if is_file else ""
-        file_close = self._renderer.file_close if is_file else ""
+        file_open = self._renderer.file_open if is_file else self._renderer.folder_open
+        file_close = (
+            self._renderer.file_close if is_file else self._renderer.folder_close
+        )
 
         # checking for Folder type
         end = "\\" if not is_file else ""
@@ -137,9 +140,9 @@ class System:
 
         parts = self.cwd().split("/")
         if len(parts) > 1:
-            header = "" if len(parts) <= 1 else "\\".join(parts[:-1])
+            header = "" if len(parts) < 2 else "\\".join(parts[:-1])
             sys.stdout.write(header + "\\" + "\n")
-            return len(header) - len(parts[-1])
+            return len(header) - len(parts[-2])
         return 0
 
     def display(self) -> None:
