@@ -5,11 +5,11 @@ documentation or presentations.
 
 Example:
 ```
-from fictus import FictusSystem
+from fictus import FictusFileSystem
 from fictus.renderer import Renderer
 
 # The FS will default to a root name of '/'; Below overrides default with `c:`
-fs = FictusSystem("c:")
+fs = FictusFileSystem("c:")
 
 # create some files at root
 fs.mkfile("README.md", "LICENSE.md", ".ignore")
