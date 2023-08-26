@@ -8,14 +8,19 @@ from fictus import System
 
 
 s = System("root")
-s.mkfile("README.md", "LICENSE.md", ".ignore")
 
+# Make some directory structures
 s.mkdir("files/docs")
 s.mkdir("files/music")
 
+# Add files
+s.mkfile("README.md", "LICENSE.md", ".ignore")
+
+# Move up to the docs folder
 s.cd("files/docs")
 s.mkfile("resume.txt", "recipe.wrd")
 
+# Use relative notation to traverse the tree
 s.cd("../../files/music")
 s.mkfile("bing.mp3", "bang.mp3", "bop.wav")
 
@@ -70,18 +75,10 @@ s.display()
 ```
 Produces:
 ```
-📁root\
-├─ 📁files\
-│  ├─ 📁docs\
-│  │  ├─ 📄recipe.wrd
-│  │  └─ 📄resume.txt
-│  └─ 📁music\
-│     ├─ 📄bang.mp3
-│     ├─ 📄bing.mp3
-│     └─ 📄bop.wav
-├─ 📄.ignore
-├─ 📄LICENSE.md
-└─ 📄README.md
+root\files\
+     ├─ 📁docs\
+     │  ├─ 📄recipe.wrd
+     │  └─ 📄resume.txt
 ```
 
 ## Install Using Pip

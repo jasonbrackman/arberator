@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "fictus"
-version = "0.0.3"
+version = "0.0.4"
 authors = [
   { name="Jason Brackman", email="brackman+fictus@gmail.com" },
 ]
@@ -16,6 +16,9 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
 ]
+[tool.setuptools.packages.find]
+include = []
+exclude = ["docs*", "tests*"]
 
 [project.urls]
 Homepage = "https://github.com/jasonbrackman/arborator"

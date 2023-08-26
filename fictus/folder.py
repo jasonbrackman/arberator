@@ -7,34 +7,40 @@ from .file import File
 class Folder:
     """A Folder is a node in a tree structure. It can contain other Folders and Files."""
 
-    def __init__(self, name: str, level: int, parent=None):
+    def __init__(self, name: str, parent: Optional[Folder] = None):
         self.name = name
-        self.level = level
+        self.last = False
+
+        self._level = 0
         self._folders: List[Folder] = []
         self._files: List[File] = []
-        self.last = False
         self._parent: Optional[Folder] = parent
+
+    @property
+    def level(self) -> int:
+        return self._level
 
     def __lt__(self, other: Folder) -> bool:
         return self.name > other.name
 
     @property
-    def parent(self) -> Folder:
-        """Don't allow the user to go further than root."""
-        if self._parent is None:
-            return self
+    def parent(self) -> Optional[Folder]:
+        """The parent may be None, which will lose connection to its children."""
         return self._parent
 
     @parent.setter
     def parent(self, other: Optional[Folder]) -> None:
         self._parent = other
 
-    def file(self, file: str, level: int) -> None:
+    def file(self, file: File) -> None:
         """Adds a file to the current Folder."""
-        self._files.append(File(file, level))
+        file.level = self._level + 1
+        self._files.append(file)
 
     def folder(self, folder: Folder) -> None:
         """Adds a direct sub-folder to the current Folder."""
+        folder.parent = self
+        folder._level = self._level + 1
         self._folders.append(folder)
 
     def contents(self) -> Sequence[Union[File, Folder]]:
