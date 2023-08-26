@@ -8,17 +8,17 @@ Example:
 from fictus import FictusFileSystem
 from fictus.renderer import Renderer
 
-# The FS will default to a root name of '/'; Below overrides default with `c:`
+# The FFS has a default root name of '/'; Below overrides the default with 'c:'.
 fs = FictusFileSystem("c:")
 
-# create some files at root
+# Create files at root, the cwd.
 fs.mkfile("README.md", "LICENSE.md", ".ignore")
 
-# create directories relative to where we are in the FS.
+# Create directories relative to where we are in the FFS.
 fs.mkdir("files/docs")
 fs.mkdir("files/music")
 
-# change directory to docs and make some files.
+# Change directory to docs and make some files.
 fs.cd("/files/docs")
 fs.mkfile("resume.txt", "recipe.wrd")
 
@@ -47,7 +47,7 @@ c:\
 ```
 
 The tree displayed starts at current working directory. The same example
-above with the current directory set to "root/files/docs" produces:
+above with the current directory set to "c:/files/docs" produces:
 ```
 c:\files\
      ├─ docs\
@@ -55,14 +55,15 @@ c:\files\
      │  └─ resume.txt
 ```
 The way the Tree is displayed can be manipulated by overriding the Renderer.
-The default renderer will display the Tree as simple text.  But you can override
-the settings to display the Tree as HTML, Markdown, or any other format you want.
+The default renderer will display the FFS as simple text.  But you can override
+the Renderer to use HTML, Markdown, or any other format you want.
 
 Example:
 ```
-# Use the customRenderer
+
 from fictus.renderer import Renderer
 
+# create a customRenderer
 customRenderer = Renderer(
     "", "",  # Doc open/close
     "📄", "",  # File open/close
