@@ -1,8 +1,6 @@
-"""A System is created to simulate and generate a listing of directory/files. """
-
 import os.path
 import sys
-from typing import List, Union, Set, Optional, Tuple
+from typing import List, Union, Set, Optional
 
 from .constants import PIPE, SPACE_PREFIX, ELBOW, TEE
 from .fictusexception import FictusException
@@ -11,8 +9,10 @@ from .folder import Folder
 from .renderer import Renderer, defaultRenderer
 
 
-class System:
-    """A System is a representation of a file system. Generates a tree structure to be printed."""
+class FictusFileSystem:
+    """
+    A FictusSystem represent a fake file system. The fs structure can be displayed
+    """
 
     def __init__(self, name="c:") -> None:
         self.level: int = 0
@@ -96,13 +96,17 @@ class System:
         """Takes a string of a normalized relative to cwd and changes the current"""
 
         normalized_path = self._normalize(path)
-
         if normalized_path.startswith(os.sep):
             self._to_root()
 
-        for part in normalized_path.split(os.sep):
+        for index, part in enumerate(normalized_path.split(os.sep)):
             if not part:
                 continue
+
+            if index == 0 and part == self.root.name:
+                self._to_root()
+                continue
+
             if part == "..":
                 if self.current.parent is None:
                     raise FictusException(
@@ -121,10 +125,10 @@ class System:
 
         return None
 
-    def _pp(self, node: Union[File, Folder]) -> str:
+    def _display_node(self, node: Union[File, Folder]) -> str:
         """
-        Pretty print the node passed in. Bookkeeping of dead and last items are tracked
-        to reveal content information in an aesthetic way.
+        Bookkeeping of nested node depth, node siblings, and order in the queue are
+        used to present the FicusSystem in an aesthetic way.
         """
 
         parts = [PIPE + SPACE_PREFIX for _ in range(node._level)]
@@ -147,8 +151,7 @@ class System:
         return f'{"".join(parts)}{file_open}{node.name}{file_close}{end}'
 
     def _display_header(self) -> int:
-        """Writes the CWD to stdout with forward slashes and
-        returns the length of."""
+        """Writes the CWD to stdout with forward slashes and its length."""
 
         parts = self.cwd().split(os.sep)
         if len(parts) > 1:
@@ -169,7 +172,7 @@ class System:
             if node.last is False:
                 if node.level in self.ignore:
                     self.ignore.remove(node.level)
-            line = self._pp(node)
+            line = self._display_node(node)
             new_line = line.lstrip(" ")
             max_s = max((len(line) - len(new_line)), header_length)
 

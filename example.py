@@ -1,24 +1,26 @@
-from fictus import System
+from fictus import FictusFileSystem
 from fictus.renderer import Renderer
 
-s = System()
-s.mkfile("README.md", "LICENSE.md", ".ignore")
+fs = FictusFileSystem("c:")
 
-s.mkdir("files/docs")
-s.cd("/files/docs")
-s.mkfile("resume.txt", "recipe.wrd")
+fs.mkfile("README.md", "LICENSE.md", ".ignore")
 
-s.mkdir("files/music")
-s.cd("/files/music")
-s.mkfile("bing.mp3", "bang.mp3", "bop.wav")
+fs.mkdir("files/docs")
+fs.mkdir("files/music")
 
-# Generate a tree structure to be printed to stdout as text.
-s.cd("/")  # jump to root
-s.display()
+fs.cd("/files/docs")
+fs.mkfile("resume.txt", "recipe.wrd")
 
-# change the cwd to files/docs and display the tree structure from there
-s.cd("/files/docs")
-s.display()
+fs.cd("/files/music")
+fs.mkfile("bing.mp3", "bang.mp3", "bop.wav")
+
+# Generate a fs structure to be printed to stdout as text.
+fs.cd("c:")  # jump to root
+fs.display()
+
+# change the cwd to files/docs and display the fs structure from there
+fs.cd("/files/docs")
+fs.display()
 
 # Use the customRenderer
 customRenderer = Renderer(
@@ -30,5 +32,5 @@ customRenderer = Renderer(
     "",  # Folder open/close
 )
 
-s.renderer = customRenderer
-s.display()
+fs.renderer = customRenderer
+fs.display()

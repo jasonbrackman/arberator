@@ -1,11 +1,11 @@
 from dataclasses import field, dataclass
 
-"""A Renderer is a representation of how a tree should be printed."""
+"""A Renderer is a representation of how a fs should be printed."""
 
 
 @dataclass
 class Renderer:
-    """A Renderer provides special instructions for how a tree is displayed."""
+    """A Renderer provides special instructions for how a fs is displayed."""
 
     doc_open: str = field(default="")
     doc_close: str = field(default="")

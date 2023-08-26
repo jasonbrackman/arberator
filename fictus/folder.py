@@ -1,47 +1,40 @@
 from __future__ import annotations
 from typing import List, Union, Sequence, Optional
 
+from .data import Data
 from .file import File
 
 
-class Folder:
-    """A Folder is a node in a tree structure. It can contain other Folders and Files."""
+class Folder(Data):
+    """
+    A Folder is a data item in the FictusSystem that may contain other Folders
+    and/or Files.
+    """
 
     def __init__(self, name: str, parent: Optional[Folder] = None):
-        self.name = name
-        self.last = False
+        super().__init__(name, parent)
 
-        self._level = 0
         self._folders: List[Folder] = []
         self._files: List[File] = []
-        self._parent: Optional[Folder] = parent
-
-    @property
-    def level(self) -> int:
-        return self._level
-
-    def __lt__(self, other: Folder) -> bool:
-        return self.name > other.name
-
-    @property
-    def parent(self) -> Optional[Folder]:
-        """The parent may be None, which will lose connection to its children."""
-        return self._parent
-
-    @parent.setter
-    def parent(self, other: Optional[Folder]) -> None:
-        self._parent = other
 
     def file(self, file: File) -> None:
         """Adds a file to the current Folder."""
         file.level = self._level + 1
         self._files.append(file)
 
+    def files(self) -> List[File]:
+        """Returns an alphabetized list of files found in the current Folder."""
+        return sorted(self._files[::])
+
     def folder(self, folder: Folder) -> None:
         """Adds a direct sub-folder to the current Folder."""
         folder.parent = self
         folder._level = self._level + 1
         self._folders.append(folder)
+
+    def folders(self) -> List[Folder]:
+        """Returns an alphabetized list of folders found in the current Folder."""
+        return sorted(self._folders[::])
 
     def contents(self) -> Sequence[Union[File, Folder]]:
         """Returns an alphabetized list of folders and files found in the current Folder."""
@@ -51,11 +44,3 @@ class Folder:
         if items:
             items[0].last = True
         return items
-
-    def folders(self) -> List[Folder]:
-        """Returns an alphabetized list of folders found in the current Folder."""
-        return sorted(self._folders[::])
-
-    def files(self) -> List[File]:
-        """Returns an alphabetized list of files found in the current Folder."""
-        return sorted(self._files[::])

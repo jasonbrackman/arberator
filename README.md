@@ -1,39 +1,38 @@
 # Fictus
 
-Fictus generates a fake Tree View to stdout for the purpose of documentation.
+Fictus generates a fake file system (FFS) that can be sent to stdout to display in 
+documentation or presentations.
 
 Example:
 ```
-from fictus import System
+from fictus import FictusSystem
+from fictus.renderer import Renderer
 
+# The FS will default to a root name of '/'; Below overrides default with `c:`
+fs = FictusSystem("c:")
 
-s = System("root")
+# create some files at root
+fs.mkfile("README.md", "LICENSE.md", ".ignore")
 
-# Make some directory structures
-s.mkdir("files/docs")
-s.mkdir("files/music")
+# create directories relative to where we are in the FS.
+fs.mkdir("files/docs")
+fs.mkdir("files/music")
 
-# Add files
-s.mkfile("README.md", "LICENSE.md", ".ignore")
+# change directory to docs and make some files.
+fs.cd("/files/docs")
+fs.mkfile("resume.txt", "recipe.wrd")
 
-# Move up to the docs folder
-s.cd("files/docs")
-s.mkfile("resume.txt", "recipe.wrd")
-
-# Use relative notation to traverse the tree
-s.cd("../../files/music")
-s.mkfile("bing.mp3", "bang.mp3", "bop.wav")
-
-# jump to root
-s.cd("/")
+# Change directory to music; start with a `/` to ensure traversal from root.
+fs.cd("/files/music")
+fs.mkfile("bing.mp3", "bang.mp3", "bop.wav")
 
 # Generate a tree structure to be printed to stdout as text.
-s.display()
-
+fs.cd("c:")  # jump to root
+fs.display()
 ```
 Produces:
 ```
-root\
+c:\
 ├─ files\
 │  ├─ docs\
 │  │  ├─ recipe.wrd
@@ -50,7 +49,7 @@ root\
 The tree displayed starts at current working directory. The same example
 above with the current directory set to "root/files/docs" produces:
 ```
-root\files\
+c:\files\
      ├─ docs\
      │  ├─ recipe.wrd
      │  └─ resume.txt
@@ -70,12 +69,12 @@ customRenderer = Renderer(
     "📁", "",  # Folder open/close
 )
 
-s.renderer = customRenderer
-s.display()
+fs.renderer = customRenderer
+fs.display()
 ```
 Produces:
 ```
-root\files\
+c:\files\
      ├─ 📁docs\
      │  ├─ 📄recipe.wrd
      │  └─ 📄resume.txt
