@@ -14,20 +14,18 @@ fs = FictusFileSystem("c:")
 # Create files at root, the cwd.
 fs.mkfile("README.md", "LICENSE.md", ".ignore")
 
-# Create directories relative to where we are in the FFS.
-fs.mkdir("files/docs")
-fs.mkdir("files/music")
-
-# Change directory to docs and make some files.
-fs.cd("/files/docs")
+# Create dir and files; note paths are relative to current working directory
+fs.mkdir("files/docs")  
+fs.cd("files/docs")     
 fs.mkfile("resume.txt", "recipe.wrd")
 
-# Change directory to music; start with a `/` to ensure traversal from root.
+# Create/Change dir to music; start with a `/` to ensure traversal from root.
+fs.mkdir("/files/music")
 fs.cd("/files/music")
 fs.mkfile("bing.mp3", "bang.mp3", "bop.wav")
 
 # Generate a tree structure to be printed to stdout as text.
-fs.cd("c:")  # jump to root
+fs.cd("c:")  # jump to root; could have used "/" instead of "c:"
 fs.display()
 ```
 Produces:

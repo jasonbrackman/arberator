@@ -1,3 +1,4 @@
+import os
 import unittest
 
 from fictus import FictusFileSystem
@@ -5,43 +6,64 @@ from fictus.fictusexception import FictusException
 
 
 class MyTestCase(unittest.TestCase):
-    root = "root"
+    root = "c:"
 
     def setUp(self) -> None:
-        self.fs = FictusFileSystem("/")
-        self.fs.mkdir(r"a\b")
-        self.fs.cd(r"\a\b")
+        self.fs = FictusFileSystem(self.root)
 
     def test_cd_back_one(self):
+        self.fs.mkdir(r"a\b")  # create \\a\b
+        self.fs.cd(r"\a\b")  # move to \\a\b
 
-        self.fs.cd("/a/b")
-        self.fs.cd("..")
-        self.fs.cd("..")
+        # Should show c:\a\b
+        self.assertEqual(os.sep.join([self.root, "a", "b"]), self.fs.cwd())
+
+        self.fs.cd("..")  # Go higher
+        self.assertEqual(os.sep.join([self.root, "a"]), self.fs.cwd())
+
+        self.fs.cd("..")  # again to root
+        self.assertEqual(os.sep.join([self.root]), self.fs.cwd())
 
         with self.assertRaises(FictusException):
+            # should fail as moving higher than root doesn't exist
             self.fs.cd("..")
 
-    def test_cd_root(self):
+    def test_cd_traversal(self):
+        self.fs.mkdir("a/b/c")
+        self.fs.mkdir("a/c/b")
+        self.fs.mkdir("a/a/a")
 
-        self.fs.cd("../../a/b")
+        self.fs.cd("a/b/c/../..")
+        self.assertEqual(os.sep.join([self.root, "a"]), self.fs.cwd())
+
+        self.fs.cd("/a/a/../b/../c")
+        self.assertEqual(os.sep.join([self.root, "a", "c"]), self.fs.cwd())
+
+    def test_cd_root(self):
+        self.fs.mkdir("a/b")
+        self.fs.cd("a/../a/b")
         self.fs.cd("/")
-        self.assertEqual("/", self.fs.cwd())
+        self.assertEqual(self.root, self.fs.cwd())
 
         self.fs.cd("a/b")
         self.fs.cd("\\")
-        self.assertEqual("/", self.fs.cwd())
+        self.assertEqual(self.root, self.fs.cwd())
 
         # go to root from root
         self.fs.cd("/a")
         self.fs.cd("/a")
-        self.assertEqual("//a", self.fs.cwd())
+        self.assertEqual(os.sep.join([self.root, "a"]), self.fs.cwd())
 
     def test_cd_from_cwd(self):
+        self.fs.mkdir("a/b/c")
+        self.fs.mkdir("a/c/b")
+        self.fs.mkdir("a/a/a")
         self.fs.cd("/a/b")
-        self.assertEqual("//a/b", self.fs.cwd())
+
+        self.assertEqual(os.sep.join([self.root, "a", "b"]), self.fs.cwd())
 
         self.fs.cd("/a")
-        self.assertEqual("//a", self.fs.cwd())
+        self.assertEqual(os.sep.join([self.root, "a"]), self.fs.cwd())
 
     def test_cd_fail(self):
         self.fs.cd("/")  # drop to root
@@ -50,8 +72,25 @@ class MyTestCase(unittest.TestCase):
             self.fs.cd("z/y/x")  # doesn't go anywhere; invalid path
             self.fs.cd("/z/y/x")  # still broken but starts with a jump to root
 
-        self.fs.cd("//a/b")  # this is fine
-        self.assertEqual("//a/b", self.fs.cwd())
+    def test_mkdir_with_non_string(self):
+        with self.assertRaises(FictusException):
+            # empty strings not allowed
+            self.fs.mkdir("")
+
+    def test_mkdir_with_odd_characters(self):
+        # allowed
+        items = [" ", "0", "~", "🎂"]
+        for item in items:
+            self.fs.mkdir(f"/{item}")
+            self.fs.cd(f"/{item}")
+            self.assertEqual(os.sep.join([self.root, item]), self.fs.cwd())
+
+    def test_mkdir_with_a_dot(self):
+        # a period is 'normalized' away ie: fizz/./buzz == fizz/buzz
+        self.fs.mkdir("/fizz/./buzz")
+        self.fs.cd("/fizz/buzz")  # no '.' directory created
+        self.fs.cd("/fizz/./././././././././.")  # still fine.
+        self.assertEqual(os.sep.join([self.root, "fizz"]), self.fs.cwd())
 
 
 if __name__ == "__main__":

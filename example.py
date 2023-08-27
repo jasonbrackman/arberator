@@ -5,13 +5,13 @@ fs = FictusFileSystem("c:")
 
 fs.mkfile("README.md", "LICENSE.md", ".ignore")
 
-fs.mkdir("files/docs")
-fs.mkdir("files/music")
+fs.mkdir("/files/docs")
+fs.mkdir("/files/music")
 
-fs.cd("/files/docs")
+fs.cd("/files/docs")  # traverse from root
 fs.mkfile("resume.txt", "recipe.wrd")
 
-fs.cd("/files/music")
+fs.cd("../music")  # traverse relative from where we started
 fs.mkfile("bing.mp3", "bang.mp3", "bop.wav")
 
 # Generate a fs structure to be printed to stdout as text.

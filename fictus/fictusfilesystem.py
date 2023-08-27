@@ -38,7 +38,12 @@ class FictusFileSystem:
     def mkdir(self, path: str) -> None:
         """Takes a string of a normalized relative to cwd and adds the directories
         one at a time."""
+        if not path:
+            raise FictusException("A directory must contain a non-empty string.")
+
         normalized_path = self._normalize(path)
+        if normalized_path.startswith(os.sep):
+            self._to_root()
 
         visited = {d.name: d for d in self.current.folders()}
 
@@ -47,6 +52,8 @@ class FictusFileSystem:
         current_level = self.level
 
         for part in normalized_path.split(os.sep):
+            if not part:
+                continue
             if part not in visited:
                 visited[part] = Folder(part)
                 self.current.folder(visited[part])
