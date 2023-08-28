@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "fictus"
-version = "0.0.6"
+version = "0.0.7"
 authors = [
   { name="Jason Brackman", email="brackman+fictus@gmail.com" },
 ]
@@ -23,4 +23,4 @@ exclude = ["docs*", "tests*"]
 
 [project.urls]
 Homepage = "https://github.com/jasonbrackman/arborator"
-Source = "https://github.com/jasonbrackman/arborator/fictus"
+Source = "https://github.com/jasonbrackman/arborator"

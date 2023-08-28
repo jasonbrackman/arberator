@@ -1,28 +1,30 @@
-from fictus import FictusFileSystem
-from fictus.renderer import Renderer
+from fictus import Display, FictusFileSystem, Renderer
 
-fs = FictusFileSystem("c:")
+# Create a FictusFileSystem. The default root name of '/' has been replaced with 'c:'
+ffs = FictusFileSystem("c:")
 
-fs.mkfile("README.md", "LICENSE.md", ".ignore")
+# Create some files in the current working directory.
+ffs.mkfile("README.md", "LICENSE.md", ".ignore")
 
-fs.mkdir("/files/docs")
-fs.mkdir("/files/music")
+# Create dir and files relative to the current working directory.
+ffs.mkdir("./files/docs")
+ffs.cd("./files/docs")
+ffs.mkfile("resume.txt", "recipe.wrd")
 
-fs.cd("/files/docs")  # traverse from root
-fs.mkfile("resume.txt", "recipe.wrd")
+# Create/Change dir to music. Start with a `/` to ensure traversal from root.
+ffs.mkdir("/files/music")
+ffs.cd("/files/music")
+ffs.mkfile("bing.mp3", "bang.mp3", "bop.wav")
 
-fs.cd("../music")  # traverse relative from where we started
-fs.mkfile("bing.mp3", "bang.mp3", "bop.wav")
+# Generate a ffs structure to be printed to stdout as text.
+ffs.cd("c:")  # jump to root; could have used "/" instead of "c:"
+ffs.display()
 
-# Generate a fs structure to be printed to stdout as text.
-fs.cd("c:")  # jump to root
-fs.display()
+# Display the ffs structure after a relative change of directory to files/docs
+ffs.cd("files/docs")
+ffs.display()
 
-# change the cwd to files/docs and display the fs structure from there
-fs.cd("/files/docs")
-fs.display()
-
-# Use the customRenderer
+# Create a customRenderer, apply it to a Display and update the ffs to use it.
 customRenderer = Renderer(
     "",
     "",  # Doc open/close
@@ -31,6 +33,7 @@ customRenderer = Renderer(
     "📁",
     "",  # Folder open/close
 )
-
-fs.renderer = customRenderer
-fs.display()
+# Update display to the customRenderer
+display = Display(customRenderer)
+ffs.set_display(display)
+ffs.display()
