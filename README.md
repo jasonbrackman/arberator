@@ -47,10 +47,10 @@ c:\
 The tree displayed starts at current working directory. The same example
 above with the current directory set to "c:/files/docs" produces:
 ```
-c:\files\ 
-   ├─ docs\
-   │  ├─ recipe.wrd
-   │  └─ resume.txt
+c:\files\
+   └─ docs\
+      ├─ recipe.wrd
+      └─ resume.txt
 ```
 The way the Tree is displayed can be manipulated by creating a Display. A Display 
 takes a Renderer and is injected into the Fictus File System. If a Display is not
@@ -69,20 +69,17 @@ customRenderer = Renderer(
     "📁", "",  # Folder open/close
 )
 
-# Feed the customRenderer to a Display object
-display = Display(customRenderer)
-
-# And set the FFS to use the newly minted display_model.
-ffs.set_display_model(display)
-
-ffs.display_model()
+# Update display_model to the customRenderer
+display_model = DisplayModel(customRenderer)
+ffs.set_display_model(display_model)
+ffs.display()
 ```
 Produces:
 ```
-c:\files\ 
-   ├─ 📁docs\
-   │  ├─ 📄recipe.wrd
-   │  └─ 📄resume.txt
+c:\files\
+   └─ 📁docs\
+      ├─ 📄recipe.wrd
+      └─ 📄resume.txt
 ```
 
 ## Install Using Pip

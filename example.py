@@ -1,7 +1,7 @@
 from fictus import DisplayModel, FictusFileSystem, Renderer
 
 # Create a FictusFileSystem.
-ffs = FictusFileSystem("root")
+ffs = FictusFileSystem("c:")
 
 # Create some files in the current working directory.
 ffs.mkfile("README.md", "LICENSE.md", ".ignore")

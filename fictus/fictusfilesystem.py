@@ -26,7 +26,7 @@ class FictusFileSystem:
         if self._display_model is None:
             self._display_model = DisplayModel(defaultRenderer)
 
-        self._display_model.display(self)
+        self._display_model.display(self.current, self.cwd())
 
     @staticmethod
     def _normalize(path: str) -> str:
