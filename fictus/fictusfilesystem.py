@@ -1,40 +1,32 @@
 import os.path
 from typing import Set, Optional
 
-from .display import Display
+from .displaymodel import DisplayModel
 from .fictusexception import FictusException
 from .file import File
 from .folder import Folder
-from .renderer import Renderer, defaultRenderer
+from .renderer import defaultRenderer
 
 
 class FictusFileSystem:
     """A FictusFileSystem represent a fake file system (FFS)."""
 
-    def __init__(self, name="c:") -> None:
+    DEFAULT_ROOT_NAME = "\\"
+
+    def __init__(self, name=DEFAULT_ROOT_NAME) -> None:
         self.level: int = 0
         self.root: Folder = Folder(name)
         self.current: Folder = self.root
-        self._display: Optional[Display] = None
+        self._display_model: Optional[DisplayModel] = None
 
-    def set_display(self, display) -> None:
-        self._display = display
+    def set_display_model(self, display) -> None:
+        self._display_model = display
 
     def display(self) -> None:
-        if self._display is None:
-            self._display = Display(defaultRenderer)
+        if self._display_model is None:
+            self._display_model = DisplayModel(defaultRenderer)
 
-        self._display.display(self)
-
-    @property
-    def renderer(self) -> Optional[Renderer]:
-        """Returns the renderer used to display the Tree Structure."""
-        return self._renderer
-
-    @renderer.setter
-    def renderer(self, renderer: Renderer) -> None:
-        """Sets the renderer used to display the Tree Structure."""
-        self._renderer = renderer
+        self._display_model.display(self)
 
     @staticmethod
     def _normalize(path: str) -> str:

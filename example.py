@@ -1,7 +1,7 @@
-from fictus import Display, FictusFileSystem, Renderer
+from fictus import DisplayModel, FictusFileSystem, Renderer
 
-# Create a FictusFileSystem. The default root name of '/' has been replaced with 'c:'
-ffs = FictusFileSystem("c:")
+# Create a FictusFileSystem.
+ffs = FictusFileSystem("root")
 
 # Create some files in the current working directory.
 ffs.mkfile("README.md", "LICENSE.md", ".ignore")
@@ -17,7 +17,7 @@ ffs.cd("/files/music")
 ffs.mkfile("bing.mp3", "bang.mp3", "bop.wav")
 
 # Generate a ffs structure to be printed to stdout as text.
-ffs.cd("c:")  # jump to root; could have used "/" instead of "c:"
+ffs.cd("/")  # jump to root
 ffs.display()
 
 # Display the ffs structure after a relative change of directory to files/docs
@@ -33,7 +33,7 @@ customRenderer = Renderer(
     "📁",
     "",  # Folder open/close
 )
-# Update display to the customRenderer
-display = Display(customRenderer)
-ffs.set_display(display)
+# Update display_model to the customRenderer
+display_model = DisplayModel(customRenderer)
+ffs.set_display_model(display_model)
 ffs.display()

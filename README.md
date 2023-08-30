@@ -1,12 +1,12 @@
 # Fictus
 
-Fictus generates a fake file system (FFS) that can be sent to stdout to display in 
-documentation or presentations.
+Fictus generates a fake file system (FFS) that can be sent to stdout to display in documentation or presentations.
+
 
 Example:
-```
-from fictus import Display, FictusFileSystem, Renderer
 
+```Python
+from fictus import DisplayModel, FictusFileSystem, Renderer
 
 # Create a FictusFileSystem. The default root name of '/' has been replaced with 'c:'
 ffs = FictusFileSystem("c:")
@@ -60,10 +60,11 @@ The display may need to be customized if you want the output to include HTML,
 Markdown, or other custom information.
 
 Example:
-```
+
+```Python
 # A customRenderer is created: adds an emoji before printing a File or Folder.
 customRenderer = Renderer(
-    "",   "",  # Doc open/close
+    "", "",  # Doc open/close
     "📄", "",  # File open/close
     "📁", "",  # Folder open/close
 )
@@ -71,17 +72,17 @@ customRenderer = Renderer(
 # Feed the customRenderer to a Display object
 display = Display(customRenderer)
 
-# And set the FFS to use the newly minted display.
-ffs.set_display(display)
+# And set the FFS to use the newly minted display_model.
+ffs.set_display_model(display)
 
-ffs.display()
+ffs.display_model()
 ```
 Produces:
 ```
-📁c:\files\ 
-     ├─ 📁docs\
-     │  ├─ 📄recipe.wrd
-     │  └─ 📄resume.txt
+c:\files\ 
+   ├─ 📁docs\
+   │  ├─ 📄recipe.wrd
+   │  └─ 📄resume.txt
 ```
 
 ## Install Using Pip

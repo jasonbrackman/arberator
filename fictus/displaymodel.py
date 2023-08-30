@@ -13,7 +13,7 @@ if TYPE_CHECKING:
     from .fictusfilesystem import FictusFileSystem
 
 
-class Display:
+class DisplayModel:
     def __init__(self, renderer: Renderer):
         self._renderer = renderer
         self._ignore: Set[int] = set()
@@ -49,9 +49,7 @@ class Display:
         parts = ffs.cwd().split(os.sep)
         if len(parts) > 1:
             header = ffs.cwd() if len(parts) <= 2 else f"\\".join(parts[:-1])
-            sys.stdout.write(
-                f"{self._renderer.folder_open}{header}\\{self._renderer.folder_close} \n"
-            )
+            sys.stdout.write(f"{header}\\\n")
             return len(header) - len(parts[-2])
         return 0
 
