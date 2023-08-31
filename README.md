@@ -1,9 +1,13 @@
-# Fictus
+### Fictus
 
-Fictus generates a fake file system (FFS) that can be sent to stdout to display in documentation or presentations.
+Fictus allows a user to build up and then output a fictitious file system for sharing in a text driven environment.
+
+Fictus use cases include creating output for a wiki page, communicating a folder structure to a colleague over chat, or
+even mocking out a file/folder structure layout before committing are all possible use cases.  Since it mimicks a File System
+it is easy to create additional code to loop through more complex actions and build up as little or as much as you need.
 
 
-Example:
+Here's a code example:
 
 ```Python
 from fictus import DisplayModel, FictusFileSystem, Renderer
