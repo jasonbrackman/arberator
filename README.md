@@ -3,7 +3,7 @@
 Fictus allows a user to build up and then output a fictitious file system for sharing in a text driven environment.
 
 Fictus use cases include creating output for a wiki page, communicating a folder structure to a colleague over chat, or
-even mocking out a file/folder structure layout before committing are all possible use cases.  Since it mimicks a File System
+mocking a file/folder structure layout before committing to actual creation on disk.  Since Fictus mimics a File System
 it is easy to create additional code to loop through more complex actions and build up as little or as much as you need.
 
 
