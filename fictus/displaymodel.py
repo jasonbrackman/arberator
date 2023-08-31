@@ -1,14 +1,17 @@
 from __future__ import annotations
 
 import os
+import re
 import sys
-from typing import List, Set
+from typing import List, Set, Optional
 
 from .constants import PIPE, SPACE_PREFIX, ELBOW, TEE
 from .data import Data
 from .file import File
 from .folder import Folder
 from .renderer import Renderer
+
+pattern = re.compile(r"[^\\]")
 
 
 class DisplayModel:
@@ -41,14 +44,15 @@ class DisplayModel:
 
         return f'{"".join(parts)}{file_open}{node.name}{file_close}{end}'
 
-    def _display_header(self, header: str) -> int:
+    @staticmethod
+    def _display_header(header: str) -> int:
         """Writes the CWD to stdout with forward slashes and its length."""
-
+        jump_one_character_past_found = 1
         parts = header.split(os.sep)
         if len(parts) > 1:
             header = f"\\".join(parts[:-1])
             sys.stdout.write(f"{header}\\\n")
-            return max(header[1:].find("\\", 1), 0)
+            return header[:-1].rfind("\\") + jump_one_character_past_found
 
         # when root is passed in
         return 0
@@ -56,11 +60,12 @@ class DisplayModel:
     def display(self, node: Data, root: str) -> None:
         """Prints the directory structure to stdout."""
         sys.stdout.write(self._renderer.doc_open + "\n")
-
+        prefix: Optional[int] = None
         header_length = self._display_header(root)
-        node.last = True
 
+        node.last = True
         q: List[Data] = [node]
+
         self._ignore = {i for i in range(node.level)}
         while q:
             node = q.pop()
@@ -68,16 +73,20 @@ class DisplayModel:
                 if node.level in self._ignore:
                     self._ignore.remove(node.level)
             line = self._display_node(node)
-            new_line = line.lstrip()
+            if prefix is None:
+                # This needs to happen only once and applied
+                # thereafter to each subsequent line.
+                prefix = len(line) - len(line.lstrip())
 
-            max_s = max((len(line) - len(new_line)), header_length)
-
-            sys.stdout.write((max_s * " ") + new_line + "\n")
+            sys.stdout.write(header_length * " " + line[prefix:] + "\n")
             if node.last is True:
                 # track nodes without children.
                 self._ignore.add(node.level)
 
             if isinstance(node, Folder):
                 q += node.contents()
+
+            # clear flag for next run
+            node.last = False
 
         sys.stdout.write(self._renderer.doc_close + "\n")

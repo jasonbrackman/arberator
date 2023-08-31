@@ -84,14 +84,11 @@ class FictusFileSystem:
     def cwd(self):
         """Prints the current working directory."""
         r = []
-        visited = set()
         q = [self.current]
         while q:
             n = q.pop()
-            if n.name is not None:
-                r.append(n.name)
-            visited.add(n)
-            if n.parent and n.parent not in visited:
+            r.append(n.name)
+            if n.parent:
                 q.append(n.parent)
 
         return f"{os.sep}".join(r[::-1])
@@ -115,7 +112,7 @@ class FictusFileSystem:
                 continue
 
             if part == "..":
-                if self.current.parent is None:
+                if not isinstance(self.current.parent, Folder):
                     raise FictusException(
                         f"Folder not accessible; Attempted to move {part} from {self.cwd()}."
                     )
