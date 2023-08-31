@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "fictus"
-version = "0.0.9"
+version = "0.1.0"
 authors = [
   { name="Jason Brackman", email="brackman+fictus@gmail.com" },
 ]
@@ -18,7 +18,7 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 [tool.setuptools.packages.find]
-include = []
+include = ["fictus"]
 exclude = ["docs*", "tests*"]
 
 [project.urls]
