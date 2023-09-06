@@ -1,4 +1,5 @@
-from fictus import DisplayModel, FictusFileSystem, Renderer
+from fictus import FictusDisplay, FictusFileSystem, Renderer
+from fictus.renderer import defaultRenderer, emojiRenderer
 
 # Create a FictusFileSystem.
 ffs = FictusFileSystem("c:")
@@ -11,29 +12,33 @@ ffs.mkdir("./files/docs")
 ffs.cd("./files/docs")
 ffs.mkfile("resume.txt", "recipe.wrd")
 
-# Create/Change dir to music. Start with a `/` to ensure traversal from root.
-ffs.mkdir("/files/music")
-ffs.cd("/files/music")
+# Create/Change dir to music. Start with a `/` to ensure traversal from _root.
+ffs.mkdir("/files/music/folk")
+ffs.cd("/files/music/folk")
 ffs.mkfile("bing.mp3", "bang.mp3", "bop.wav")
 
 # Generate a ffs structure to be printed to stdout as text.
-ffs.cd("/")  # jump to root
-ffs.display()
+ffs.cd("/")  # jump to _root
+display = FictusDisplay(ffs)
+display.pprint()
 
-# Display the ffs structure after a relative change of directory to files/docs
-ffs.cd("files/docs")
-ffs.display()
+# FictusDisplay the ffs structure after a relative change of directory to files/docs
+ffs.cd("files/music")
+display.pprint()
 
-# Create a customRenderer, apply it to a Display and update the ffs to use it.
+# Update the display to use emojiRenderer from its defaultRenderer and pprint again.
+display.set_renderer(emojiRenderer)
+display.pprint()
+
+# Create a customRenderer, apply it to a FictusDisplay and update the ffs to use it.
 customRenderer = Renderer(
     "",
     "",  # Doc open/close
-    "📄",
+    "· ",
     "",  # File open/close
-    "📁",
+    "+ ",
     "",  # Folder open/close
 )
-# Update display_model to the customRenderer
-display_model = DisplayModel(customRenderer)
-ffs.set_display_model(display_model)
-ffs.display()
+# Update display to the customRenderer
+display.set_renderer(customRenderer)
+display.pprint()

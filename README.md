@@ -1,6 +1,6 @@
 ### Fictus
 
-Fictus allows a user to build up and then output a fictitious file system for sharing in a text driven environment.
+Fictus allows a user to create and output a fictitious file system for sharing in a text driven environment.
 
 Fictus use cases include creating output for a wiki page, communicating a folder structure to a colleague over chat, or
 mocking a file/folder structure layout before committing to actual creation on disk.  Since Fictus mimics a File System
@@ -10,9 +10,9 @@ it is easy to create additional code to loop through more complex actions and bu
 Here's a code example:
 
 ```Python
-from fictus import DisplayModel, FictusFileSystem, Renderer
+from fictus import FictusFileSystem
 
-# Create a FictusFileSystem. The default root name of '/' has been replaced with 'c:'
+# Create a FictusFileSystem.
 ffs = FictusFileSystem("c:")
 
 # Create some files in the current working directory.
@@ -23,15 +23,25 @@ ffs.mkdir("./files/docs")
 ffs.cd("./files/docs")
 ffs.mkfile("resume.txt", "recipe.wrd")
 
-# Create/Change dir to music. Start with a `/` to ensure traversal from root.
-ffs.mkdir("/files/music")
-ffs.cd("/files/music")
+# Create/Change dir to music. Start with a `/` to ensure traversal from _root.
+ffs.mkdir("/files/music/folk")
+ffs.cd("/files/music/folk")
 ffs.mkfile("bing.mp3", "bang.mp3", "bop.wav")
 
 # Generate a ffs structure to be printed to stdout as text.
-ffs.cd("c:")  # jump to root; could have used "/" instead of "c:"
-ffs.display()
+ffs.cd("c:")  # jump to _root; could have used "/" instead of "c:"
 ```
+One then needs to create a FictusDisplay and provide the created FFS.
+
+```Python
+from fictus import FictusDisplay
+from fictus.renderer import defaultRenderer
+
+...
+display = FictusDisplay(ffs)
+display.pprint()
+```
+
 Produces:
 ```
 c:\
@@ -40,50 +50,76 @@ c:\
 │  │  ├─ recipe.wrd
 │  │  └─ resume.txt
 │  └─ music\
-│     ├─ bang.mp3
-│     ├─ bing.mp3
-│     └─ bop.wav
+│     └─ folk\
+│        ├─ bang.mp3
+│        ├─ bing.mp3
+│        └─ bop.wav
 ├─ .ignore
 ├─ LICENSE.md
 └─ README.md
 ```
 
 The tree displayed starts at current working directory. The same example
-above with the current directory set to "c:/files/docs" produces:
+above with the current directory set to "c:/files/music" produces:
+
 ```
 c:\files\
-   └─ docs\
-      ├─ recipe.wrd
-      └─ resume.txt
+   └─ music\
+      └─ folk\
+         ├─ bang.mp3
+         ├─ bing.mp3
+         └─ bop.wav
 ```
-The way the Tree is displayed can be manipulated by creating a Display. A Display 
-takes a Renderer and is injected into the Fictus File System. If a Display is not
-provided, a default will be constructed and display the FFS as simple text.  
-
-The display may need to be customized if you want the output to include HTML, 
-Markdown, or other custom information.
-
-Example:
+The way the Tree is displayed is enhanced by a FictusDisplay. A FictusDisplay 
+takes a Renderer. The Renderer can be overridden through the `set_renderer` function.
+Here is an example that takes advantage of the built in emojiRenderer.  The existing 
+Display is updated and a pprint is called again.
 
 ```Python
-# A customRenderer is created: adds an emoji before printing a File or Folder.
+from fictus.renderer import emojiRenderer
+...
+# FictusDisplay the ffs structure after a relative change of directory to files/music
+ffs.cd("files/music")
+display.set_renderer(emojiRenderer)
+display.pprint()
+```
+
+This produces:
+
+```
+c:\files\
+   └─ 📁music\
+      └─ 📁folk\
+         ├─ 📄bang.mp3
+         ├─ 📄bing.mp3
+         └─ 📄bop.wav
+```
+
+The Renderer can also be customized. Include HTML, Markdown, or other custom tags that
+are not already provided.
+
+For example:
+
+```Python
+# A customRenderer is created: adds special characters before a File or Folder.
 customRenderer = Renderer(
     "", "",  # Doc open/close
-    "📄", "",  # File open/close
-    "📁", "",  # Folder open/close
+    "· ", "",  # File open/close
+    "+ ",  # Folder open/close
 )
 
 # Update display_model to the customRenderer
-display_model = DisplayModel(customRenderer)
-ffs.set_display_model(display_model)
-ffs.display()
+display.set_renderer(customRenderer)
+display.pprint()
 ```
 Produces:
 ```
 c:\files\
-   └─ 📁docs\
-      ├─ 📄recipe.wrd
-      └─ 📄resume.txt
+   └─ + music\
+      └─ + folk\
+         ├─ · bang.mp3
+         ├─ · bing.mp3
+         └─ · bop.wav
 ```
 
 ## Install Using Pip

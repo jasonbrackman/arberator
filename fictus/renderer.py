@@ -17,10 +17,18 @@ class Renderer:
 
 defaultRenderer = Renderer()
 
-
 markdownRenderer = Renderer(
     '<pre style="line-height:17px">',
     "</pre>",  # Doc open/close
     '<span style="color:gray">',
     "</span>",  # File open/close
+)
+
+emojiRenderer = Renderer(
+    "",
+    "",  # Doc open/close
+    "📄",
+    "",  # File open/close
+    "📁",
+    "",  # Folder open/close
 )

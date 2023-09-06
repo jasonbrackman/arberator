@@ -21,11 +21,11 @@ class MyTestCase(unittest.TestCase):
         self.fs.cd("..")  # Go higher
         self.assertEqual(os.sep.join([self.root, "a"]), self.fs.cwd())
 
-        self.fs.cd("..")  # again to root
+        self.fs.cd("..")  # again to _root
         self.assertEqual(os.sep.join([self.root]), self.fs.cwd())
 
         with self.assertRaises(FictusException):
-            # should fail as moving higher than root doesn't exist
+            # should fail as moving higher than _root doesn't exist
             self.fs.cd("..")
 
     def test_cd_traversal(self):
@@ -49,7 +49,7 @@ class MyTestCase(unittest.TestCase):
         self.fs.cd("\\")
         self.assertEqual(self.root, self.fs.cwd())
 
-        # go to root from root
+        # go to _root from _root
         self.fs.cd("/a")
         self.fs.cd("/a")
         self.assertEqual(os.sep.join([self.root, "a"]), self.fs.cwd())
@@ -66,11 +66,22 @@ class MyTestCase(unittest.TestCase):
         self.assertEqual(os.sep.join([self.root, "a"]), self.fs.cwd())
 
     def test_cd_fail(self):
-        self.fs.cd("/")  # drop to root
+        self.fs.cd("/")  # drop to _root
 
         with self.assertRaises(FictusException):
             self.fs.cd("z/y/x")  # doesn't go anywhere; invalid path
-            self.fs.cd("/z/y/x")  # still broken but starts with a jump to root
+            self.fs.cd("/z/y/x")  # still broken but starts with a jump to _root
+
+    def test_cd_fail_but_remain_at_cwd(self):
+        self.fs.cd("/")  # drop to _root
+        self.fs.mkdir("a/b/c")
+        self.fs.cd("a/b/c")  # move down the chain
+
+        with self.assertRaises(FictusException):
+            self.fs.cd("../../../..")  # go back once too many times
+
+        # still at the last place expected
+        self.assertEqual(self.fs.cwd(), self.root + "/a/b/c")
 
     def test_mkdir_with_non_string(self):
         with self.assertRaises(FictusException):

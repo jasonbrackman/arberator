@@ -1,6 +1,6 @@
-__all__ = ["FictusFileSystem", "Renderer", "DisplayModel"]
+__all__ = ["FictusFileSystem", "Renderer", "FictusDisplay"]
 
 
-from .displaymodel import DisplayModel
+from .fictusdisplay import FictusDisplay
 from .fictusfilesystem import FictusFileSystem
 from .renderer import Renderer
