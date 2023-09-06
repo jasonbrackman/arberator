@@ -65,6 +65,8 @@ class FictusDisplay:
     def pprint(self, renderer: Optional[Renderer] = None) -> None:
         """Displays the file system structure to stdout."""
 
+        old_renderer, self._renderer = self._renderer, renderer
+
         node = self._ffs.current()
         node.last = True
         self._ignore = {i for i in range(node.level)}
@@ -99,3 +101,6 @@ class FictusDisplay:
         buffer.append(self._renderer.doc_close)
 
         sys.stdout.writelines(buffer)
+
+        # reset renderer to what it was
+        self._renderer = old_renderer

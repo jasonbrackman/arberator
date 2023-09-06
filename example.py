@@ -27,8 +27,9 @@ ffs.cd("files/music")
 display.pprint()
 
 # Update the display to use emojiRenderer from its defaultRenderer and pprint again.
-display.set_renderer(emojiRenderer)
-display.pprint()
+# Note how this is a one time emojiRenderer.  Calling pprint() again without the
+# renderer optional value will result in the defaultRenderer being used.
+display.pprint(renderer=emojiRenderer)
 
 # Create a customRenderer, apply it to a FictusDisplay and update the ffs to use it.
 customRenderer = Renderer(
@@ -39,6 +40,7 @@ customRenderer = Renderer(
     "+ ",
     "",  # Folder open/close
 )
-# Update display to the customRenderer
+# Update display to the customRenderer permanently. Each call to pprint() will use the
+# customRenderer unless the optional renderer is passed in like the emoji example above.
 display.set_renderer(customRenderer)
 display.pprint()

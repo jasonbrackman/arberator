@@ -2,6 +2,17 @@
 
 Fictus allows a user to create and output a fictitious file system for sharing in a text driven environment.
 
+```
+📁kitchen\
+└─ 📁drawer\
+   ├─ 📁forks\
+   │  ├─ 📁old\
+   │  │  └─ 📄pitchfork.bak
+   │  ├─ 📄dinner.mp3
+   │  └─ 📄salad.mov
+   └─ 📁spoons\
+      └─ 📄ladle.psd
+```
 Fictus use cases include creating output for a wiki page, communicating a folder structure to a colleague over chat, or
 mocking a file/folder structure layout before committing to actual creation on disk.  Since Fictus mimics a File System
 it is easy to create additional code to loop through more complex actions and build up as little or as much as you need.
@@ -59,6 +70,12 @@ c:\
 └─ README.md
 ```
 
+The display can also be generated in place:
+
+```Python
+FictusDisplay(ffs).pprint()
+```
+
 The tree displayed starts at current working directory. The same example
 above with the current directory set to "c:/files/music" produces:
 
@@ -93,6 +110,21 @@ c:\files\
          ├─ 📄bang.mp3
          ├─ 📄bing.mp3
          └─ 📄bop.wav
+```
+
+In the above example the renderer was updated so that each call to print will now use
+the emojiRenderer. If the main renderer is not required to be updated and its meant to
+just showcase one call in a different way the pprint() has an optional `renderer` argument.
+
+```Python
+from fictus.renderer import defaultRenderer
+# current renderer is the emojiRenderer
+
+# uses defaultRenderer just this one time
+display.pprint(renderer=defaultRenderer)  
+
+# use the emojiRenderer that was setup in the previous example set.
+display.pprint() 
 ```
 
 The Renderer can also be customized. Include HTML, Markdown, or other custom tags that
