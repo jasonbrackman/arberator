@@ -10,7 +10,7 @@ from .constants import PIPE, SPACER_PREFIX, ELBOW, TEE, SPACER
 from .data import Data
 from .file import File
 from .folder import Folder
-from .renderer import Renderer, defaultRenderer
+from .renderer import Renderer, defaultRenderer, RenderKeys
 
 pattern = re.compile(r"[^\\]")
 
@@ -39,9 +39,15 @@ class FictusDisplay:
             parts[-1] = ELBOW if node.last is True else TEE
 
         is_file = isinstance(node, File)
-        file_open = self._renderer.file_open if is_file else self._renderer.folder_open
+        file_open = (
+            self._renderer.tags(RenderKeys.FILE).open
+            if is_file
+            else self._renderer.tags(RenderKeys.FOLDER).open
+        )
         file_close = (
-            self._renderer.file_close if is_file else self._renderer.folder_close
+            self._renderer.tags(RenderKeys.FILE).close
+            if is_file
+            else self._renderer.tags(RenderKeys.FOLDER).close
         )
 
         # checking for Folder type
@@ -65,7 +71,7 @@ class FictusDisplay:
     def pprint(self, renderer: Optional[Renderer] = None) -> None:
         """Displays the file system structure to stdout."""
 
-        old_renderer, self._renderer = self._renderer, renderer
+        old_renderer, self._renderer = self._renderer, renderer or self._renderer
 
         node = self._ffs.current()
         node.last = True
@@ -73,7 +79,9 @@ class FictusDisplay:
         header_length = self._pprint_header(self._ffs.cwd())
 
         prefix: int = -1  # not set
-        buffer: List[str] = [self._renderer.doc_open]
+        if self._renderer is None:
+            return
+        buffer: List[str] = [self._renderer.tags(RenderKeys.DOC).open]
 
         q: List[Data] = [node]
         while q:
@@ -98,7 +106,7 @@ class FictusDisplay:
 
             # clear flag for next run
             node.last = False
-        buffer.append(self._renderer.doc_close)
+        buffer.append(self._renderer.tags(RenderKeys.DOC).close)
 
         sys.stdout.writelines(buffer)
 

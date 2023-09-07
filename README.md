@@ -46,9 +46,7 @@ One then needs to create a FictusDisplay and provide the created FFS.
 
 ```Python
 from fictus import FictusDisplay
-from fictus.renderer import defaultRenderer
 
-...
 display = FictusDisplay(ffs)
 display.pprint()
 ```
@@ -133,12 +131,11 @@ are not already provided.
 For example:
 
 ```Python
+from fictus.renderer import RenderKeys, RenderTags
 # A customRenderer is created: adds special characters before a File or Folder.
-customRenderer = Renderer(
-    "", "",  # Doc open/close
-    "· ", "",  # File open/close
-    "+ ",  # Folder open/close
-)
+customRenderer = Renderer()
+customRenderer.register(RenderKeys.FILE, RenderTags("· ", ""))
+customRenderer.register(RenderKeys.FOLDER, RenderTags("+ ", ""))
 
 # Update display_model to the customRenderer
 display.set_renderer(customRenderer)

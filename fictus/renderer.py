@@ -1,34 +1,46 @@
+from collections import defaultdict
 from dataclasses import field, dataclass
+from enum import Enum, auto
 
 """A Renderer is a representation of how a fs should be printed."""
 
 
 @dataclass
+class RenderTags:
+    open: str = field(default="")
+    close: str = field(default="")
+
+
+class RenderKeys(Enum):
+    DOC = auto()
+    FILE = auto()
+    FOLDER = auto()
+
+
 class Renderer:
     """A Renderer provides special instructions for how a fs is displayed."""
 
-    doc_open: str = field(default="")
-    doc_close: str = field(default="")
-    file_open: str = field(default="")
-    file_close: str = field(default="")
-    folder_open: str = field(default="")
-    folder_close: str = field(default="")
+    def __init__(self):
+        self._tags = defaultdict(RenderTags)
+
+    def register(self, key: RenderKeys, tags: RenderTags):
+        self._tags[key] = tags
+
+    def tags(self, key: RenderKeys) -> RenderTags:
+        return self._tags[key]
 
 
 defaultRenderer = Renderer()
 
-markdownRenderer = Renderer(
-    '<pre style="line-height:17px">',
-    "</pre>",  # Doc open/close
-    '<span style="color:gray">',
-    "</span>",  # File open/close
+markdownRenderer = Renderer()
+markdownRenderer.register(
+    RenderKeys.DOC, RenderTags('<pre style="line-height:17px">', "</pre>")
+)
+markdownRenderer.register(
+    RenderKeys.FILE, RenderTags('<span style="color:gray">', "</span>")
 )
 
-emojiRenderer = Renderer(
-    "",
-    "",  # Doc open/close
-    "📄",
-    "",  # File open/close
-    "📁",
-    "",  # Folder open/close
-)
+
+emojiRenderer = Renderer()
+emojiRenderer.register(RenderKeys.FILE, RenderTags("📄", ""))
+emojiRenderer.register(RenderKeys.FOLDER, RenderTags("📁", ""))

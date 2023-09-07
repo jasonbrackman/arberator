@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "fictus"
-version = "0.1.4"
+version = "0.1.5"
 authors = [
   { name="Jason Brackman", email="brackman+fictus@gmail.com" },
 ]
