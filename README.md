@@ -2,29 +2,28 @@
 
 Fictus allows a user to create and output a fictitious file system for sharing in a text driven environment.
 
-```
-📁kitchen\
-└─ 📁drawer\
-   ├─ 📁forks\
-   │  ├─ 📁old\
+```Text
+🏡kitchen
+└─ 📁drawer
+   ├─ 📁forks
+   │  ├─ 📁old
    │  │  └─ 📄pitchfork.bak
    │  ├─ 📄dinner.mp3
    │  └─ 📄salad.mov
-   └─ 📁spoons\
+   └─ 📁spoons
       └─ 📄ladle.psd
 ```
 Fictus use cases include creating output for a wiki page, communicating a folder structure to a colleague over chat, or
-mocking a file/folder structure layout before committing to actual creation on disk.  Since Fictus mimics a File System
-it is easy to create additional code to loop through more complex actions and build up as little or as much as you need.
+mocking a file/folder structure layout before committing to actual creation on disk.  Since Fictus mimics a File System,
+calling code can create complex loops to build up as little or as much as required to get an idea across.
 
-
-Here's a code example:
+A code example:
 
 ```Python
 from fictus import FictusFileSystem
 
 # Create a FictusFileSystem.
-ffs = FictusFileSystem("c:")
+ffs = FictusFileSystem("c")
 
 # Create some files in the current working directory.
 ffs.mkfile("README.md", "LICENSE.md", ".ignore")
@@ -40,9 +39,10 @@ ffs.cd("/files/music/folk")
 ffs.mkfile("bing.mp3", "bang.mp3", "bop.wav")
 
 # Generate a ffs structure to be printed to stdout as text.
-ffs.cd("c:")  # jump to _root; could have used "/" instead of "c:"
+ffs.cd("/")  # jump to _root; could have used "/" instead of "c:"
 ```
-One then needs to create a FictusDisplay and provide the created FFS.
+
+A FictusDisplay can output the FFS.
 
 ```Python
 from fictus import FictusDisplay
@@ -52,7 +52,8 @@ display.pprint()
 ```
 
 Produces:
-```
+
+```Text
 c:\
 ├─ files\
 │  ├─ docs\
@@ -77,37 +78,36 @@ FictusDisplay(ffs).pprint()
 The tree displayed starts at current working directory. The same example
 above with the current directory set to "c:/files/music" produces:
 
+```Text
+music\
+└─ folk\
+   ├─ bang.mp3
+   ├─ bing.mp3
+   └─ bop.wav
 ```
-c:\files\
-   └─ music\
-      └─ folk\
-         ├─ bang.mp3
-         ├─ bing.mp3
-         └─ bop.wav
-```
-The way the Tree is displayed is enhanced by a FictusDisplay. A FictusDisplay 
-takes a Renderer. The Renderer can be overridden through the `set_renderer` function.
-Here is an example that takes advantage of the built in emojiRenderer.  The existing 
-Display is updated and a pprint is called again.
+
+A FictusDisplay does allow the user to customize output for the DOC, ROOT, FOLDER, and 
+FILE types.  The Renderer can be changed from default for the code lifetime using the 
+`set_renderer` function. Here is an example that takes advantage of the built-in 
+`emojiRenderer`.  The existing Display is updated and a pprint is called again.
 
 ```Python
 from fictus.renderer import emojiRenderer
 ...
 # FictusDisplay the ffs structure after a relative change of directory to files/music
 ffs.cd("files/music")
-display.set_renderer(emojiRenderer)
+display.renderer = emojiRenderer
 display.pprint()
 ```
 
 This produces:
 
-```
-c:\files\
-   └─ 📁music\
-      └─ 📁folk\
-         ├─ 📄bang.mp3
-         ├─ 📄bing.mp3
-         └─ 📄bop.wav
+```Text
+📁music
+└─ 📁folk
+   ├─ 📄bang.mp3
+   ├─ 📄bing.mp3
+   └─ 📄bop.wav
 ```
 
 In the above example the renderer was updated so that each call to print will now use
@@ -125,30 +125,32 @@ display.pprint(renderer=defaultRenderer)
 display.pprint() 
 ```
 
-The Renderer can also be customized. Include HTML, Markdown, or other custom tags that
-are not already provided.
+Customization may be useful for creating HTML, Markdown, or other custom tags that are
+not already provided.
 
 For example:
 
 ```Python
-from fictus.renderer import RenderKeys, RenderTags
+from fictus.renderer import RenderTagEnum, RenderTag
+
 # A customRenderer is created: adds special characters before a File or Folder.
 customRenderer = Renderer()
-customRenderer.register(RenderKeys.FILE, RenderTags("· ", ""))
-customRenderer.register(RenderKeys.FOLDER, RenderTags("+ ", ""))
+customRenderer.register(RenderTagEnum.FILE, RenderTag("· ", ""))
+customRenderer.register(RenderTagEnum.FOLDER, RenderTag("+ ", "\\"))
 
 # Update display_model to the customRenderer
-display.set_renderer(customRenderer)
+display.renderer = customRenderer
 display.pprint()
 ```
+
 Produces:
-```
-c:\files\
-   └─ + music\
-      └─ + folk\
-         ├─ · bang.mp3
-         ├─ · bing.mp3
-         └─ · bop.wav
+
+```Text
++ music\
+└─ + folk\
+   ├─ · bang.mp3
+   ├─ · bing.mp3
+   └─ · bop.wav
 ```
 
 ## Install Using Pip

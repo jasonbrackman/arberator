@@ -6,13 +6,14 @@ from enum import Enum, auto
 
 
 @dataclass
-class RenderTags:
+class RenderTag:
     open: str = field(default="")
     close: str = field(default="")
 
 
-class RenderKeys(Enum):
+class RenderTagEnum(Enum):
     DOC = auto()
+    ROOT = auto()
     FILE = auto()
     FOLDER = auto()
 
@@ -21,26 +22,33 @@ class Renderer:
     """A Renderer provides special instructions for how a fs is displayed."""
 
     def __init__(self):
-        self._tags = defaultdict(RenderTags)
+        self._tags = defaultdict(RenderTag)
 
-    def register(self, key: RenderKeys, tags: RenderTags):
+    def register(self, key: RenderTagEnum, tags: RenderTag):
         self._tags[key] = tags
 
-    def tags(self, key: RenderKeys) -> RenderTags:
+    def tags(self, key: RenderTagEnum) -> RenderTag:
         return self._tags[key]
 
 
 defaultRenderer = Renderer()
+defaultRenderer.register(RenderTagEnum.DOC, RenderTag("", "\n"))
+defaultRenderer.register(RenderTagEnum.ROOT, RenderTag("", ":\\"))
+defaultRenderer.register(RenderTagEnum.FOLDER, RenderTag("", "\\"))
 
 markdownRenderer = Renderer()
 markdownRenderer.register(
-    RenderKeys.DOC, RenderTags('<pre style="line-height:17px">', "</pre>")
+    RenderTagEnum.DOC, RenderTag('<pre style="line-height:17px\n">', "</pre>")
 )
+defaultRenderer.register(RenderTagEnum.ROOT, RenderTag("", ":\\"))
+defaultRenderer.register(RenderTagEnum.FOLDER, RenderTag("", "\\"))
 markdownRenderer.register(
-    RenderKeys.FILE, RenderTags('<span style="color:gray">', "</span>")
+    RenderTagEnum.FILE, RenderTag('<span style="color:gray">', "</span>")
 )
 
 
 emojiRenderer = Renderer()
-emojiRenderer.register(RenderKeys.FILE, RenderTags("📄", ""))
-emojiRenderer.register(RenderKeys.FOLDER, RenderTags("📁", ""))
+emojiRenderer.register(RenderTagEnum.DOC, RenderTag("", "\n"))
+emojiRenderer.register(RenderTagEnum.ROOT, RenderTag("🏡", ":"))
+emojiRenderer.register(RenderTagEnum.FILE, RenderTag("📄", ""))
+emojiRenderer.register(RenderTagEnum.FOLDER, RenderTag("📁", ""))

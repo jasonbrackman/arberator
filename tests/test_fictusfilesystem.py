@@ -9,7 +9,7 @@ class MyTestCase(unittest.TestCase):
     root = "c:"
 
     def setUp(self) -> None:
-        self.fs = FictusFileSystem(self.root)
+        self.fs = FictusFileSystem("c")
 
     def test_cd_back_one(self):
         self.fs.mkdir(r"a\b")  # create \\a\b

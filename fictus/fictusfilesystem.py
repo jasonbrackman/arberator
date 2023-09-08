@@ -1,6 +1,8 @@
 import os.path
 from typing import Set, Optional
 
+from fictus.renderer import defaultRenderer, RenderTagEnum
+
 from fictus.data import Data
 
 from .fictusexception import FictusException
@@ -18,8 +20,11 @@ class FictusFileSystem:
     """
 
     def __init__(self, name=DEFAULT_ROOT_NAME) -> None:
-        self._root: Folder = Folder(name)
+        self._root: Folder = Folder(name.strip(""))
         self._current: Folder = self._root
+
+    def root(self) -> Folder:
+        return self._root
 
     def current(self) -> Folder:
         return self._current
@@ -84,6 +89,8 @@ class FictusFileSystem:
             r.append(node.name)
             node = node.parent
 
+        if r:
+            r[-1] = r[-1] + ":"
         return f"{os.sep}".join(reversed(r))
 
     def _to_root(self) -> None:
@@ -102,9 +109,12 @@ class FictusFileSystem:
             if not part:
                 continue
 
-            if index == 0 and part == self._root.name:
-                self._to_root()
-                continue
+            if index == 0 and part.endswith(":"):
+                # explicitly saying it's a root name
+                temp_part = part.rstrip(":")
+                if temp_part == self._root.name:
+                    self._to_root()
+                    continue
 
             if part == "..":
                 # looking at the parent here, so ensure its valid.

@@ -1,8 +1,8 @@
 from fictus import FictusDisplay, FictusFileSystem, Renderer
-from fictus.renderer import emojiRenderer, RenderTags, RenderKeys
+from fictus.renderer import emojiRenderer, RenderTag, RenderTagEnum
 
 # Create a FictusFileSystem.
-ffs = FictusFileSystem("c:")
+ffs = FictusFileSystem("c")
 
 # Create some files in the current working directory.
 ffs.mkfile("README.md", "LICENSE.md", ".ignore")
@@ -18,10 +18,10 @@ ffs.cd("/files/music/folk")
 ffs.mkfile("bing.mp3", "bang.mp3", "bop.wav")
 
 # Generate a ffs structure to be printed to stdout as text.
-ffs.cd("/")  # jump to _root
+ffs.cd("\\")  # jump to _root
 
 display = FictusDisplay(ffs)
-display.pprint()
+display.pprint(renderer=emojiRenderer)
 
 # FictusDisplay the ffs structure after a relative change of directory to files/docs
 ffs.cd("files/music")
@@ -34,10 +34,10 @@ display.pprint(renderer=emojiRenderer)
 
 # Create a customRenderer, apply it to a FictusDisplay and update the ffs to use it.
 customRenderer = Renderer()
-customRenderer.register(RenderKeys.FILE, RenderTags("· ", ""))
-customRenderer.register(RenderKeys.FOLDER, RenderTags("+ ", ""))
+customRenderer.register(RenderTagEnum.FILE, RenderTag("· ", ""))
+customRenderer.register(RenderTagEnum.FOLDER, RenderTag("+ ", "\\"))
 
 # Update display to the customRenderer permanently. Each call to pprint() will use the
 # customRenderer unless the optional renderer is passed in like the emoji example above.
-display.set_renderer(customRenderer)
+display.renderer = customRenderer
 display.pprint()
