@@ -1,4 +1,4 @@
-### Fictus
+## Fictus
 
 Fictus allows a user to create and output a fictitious file system for sharing in a text driven environment.
 
@@ -17,36 +17,48 @@ Fictus use cases include creating output for a wiki page, communicating a folder
 mocking a file/folder structure layout before committing to actual creation on disk.  Since Fictus mimics a File System,
 calling code can create complex loops to build up as little or as much as required to get an idea across.
 
-A code example:
+### FictusFileSystem
+Creating a Fictus File System starts with instantiating a FicutsFileSystem object and, optionally, providing
+a name to use as the drive letter.  If one is not provided, a single slash ('/') will be used.
 
 ```Python
 from fictus import FictusFileSystem
 
 # Create a FictusFileSystem.
 ffs = FictusFileSystem("c")
-
-# Create some files in the current working directory.
-ffs.mkfile("README.md", "LICENSE.md", ".ignore")
-
-# Create dir and files relative to the current working directory.
-ffs.mkdir("./files/docs")
-ffs.cd("./files/docs")
-ffs.mkfile("resume.txt", "recipe.wrd")
-
-# Create/Change dir to music. Start with a `/` to ensure traversal from _root.
-ffs.mkdir("/files/music/folk")
-ffs.cd("/files/music/folk")
-ffs.mkfile("bing.mp3", "bang.mp3", "bop.wav")
-
-# Generate a ffs structure to be printed to stdout as text.
-ffs.cd("/")  # jump to _root; could have used "/" instead of "c:"
 ```
 
+The object can then be built up using creation methods, such as `mdir` and `mkfile` and folder traversal can occur
+using `cd`.
+
+
+```Python
+# create some directories
+ffs.mkdir("/files/docs")
+ffs.mkdir("/files/music/folk")
+
+# Create some files in the current working directory (happens to be root).
+ffs.mkfile("README.md", "LICENSE.md", ".ignore")
+
+# Change directory to the `docs` and make more files. Start with `/` to traver from root.
+ffs.cd("/files/docs")
+ffs.mkfile("resume.txt", "recipe.wrd")
+
+# Change directory to `music/folk`.  Note the relative cd from the `docs` folder. 
+ffs.cd("../music/folk")
+ffs.mkfile("bing.mp3", "bang.mp3", "bop.wav")
+```
+
+### FictusDisplay
 A FictusDisplay can output the FFS.
 
 ```Python
+
 from fictus import FictusDisplay
 
+ffs.cd("/")  # ensure the cwd is the root of the file system
+
+# Generate a ffs structure to be printed to stdout as text.
 display = FictusDisplay(ffs)
 display.pprint()
 ```
@@ -86,17 +98,21 @@ music\
    └─ bop.wav
 ```
 
+### Renderer
 A FictusDisplay does allow the user to customize output for the DOC, ROOT, FOLDER, and 
-FILE types.  The Renderer can be changed from default for the code lifetime using the 
-`set_renderer` function. Here is an example that takes advantage of the built-in 
-`emojiRenderer`.  The existing Display is updated and a pprint is called again.
+FILE types.  The Renderer can be permanently reassigned by assinging to the `renderer`
+property. Here is an example that takes advantage of the built-in `emojiRenderer`.  
 
 ```Python
 from fictus.renderer import emojiRenderer
 ...
 # FictusDisplay the ffs structure after a relative change of directory to files/music
 ffs.cd("files/music")
+
+# assign a new Renderer
 display.renderer = emojiRenderer
+
+# ouptut with the new Renderer applied
 display.pprint()
 ```
 
@@ -125,6 +141,7 @@ display.pprint(renderer=defaultRenderer)
 display.pprint() 
 ```
 
+## Customization
 Customization may be useful for creating HTML, Markdown, or other custom tags that are
 not already provided.
 
@@ -152,6 +169,7 @@ Produces:
    ├─ · bing.mp3
    └─ · bop.wav
 ```
+
 
 ## Install Using Pip
 >pip install fictus
