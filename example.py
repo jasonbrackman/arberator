@@ -41,3 +41,9 @@ customRenderer.register(RenderTagEnum.FOLDER, RenderTag("+ ", "\\"))
 # customRenderer unless the optional renderer is passed in like the emoji example above.
 display.renderer = customRenderer
 display.pprint()
+
+new_renderer = (
+    display.renderer
+)  # from previous examples -- this will return customRenderer
+new_renderer.register(RenderTagEnum.FOLDER, RenderTag("✓ ", ""))
+display.pprint(renderer=new_renderer)

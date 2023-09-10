@@ -1,6 +1,6 @@
 ## Fictus
 
-Fictus allows a user to create and output a fictitious file system for sharing in a text driven environment.
+Use `Fictus` to create and output a fictitious file system for sharing in a text driven format.
 
 ```Text
 🏡kitchen
@@ -13,15 +13,16 @@ Fictus allows a user to create and output a fictitious file system for sharing i
    └─ 📁spoons
       └─ 📄ladle.psd
 ```
-Fictus use cases include creating output for a wiki page, communicating a folder structure to a colleague over chat, or
+
+Use cases include creating output for a wiki page, communicating a folder structure to a colleague over chat, or
 mocking a file/folder structure layout before committing to actual creation on disk.  Since Fictus mimics a File System,
 calling code can create complex loops to build up as little or as much as required to get an idea across.
 
 <HR>
 
 ### FictusFileSystem
-Creating a Fictus File System starts with instantiating a FicutsFileSystem object and, optionally, providing
-a name to use as the drive letter.  If one is not provided, a single slash ('/') will be used.
+A Fictus File System starts with instantiating a FicutsFileSystem object and, optionally, providing
+a root drive name.  If one is not provided, a single slash ('/') will be used.
 
 ```Python
 from fictus import FictusFileSystem
@@ -54,13 +55,13 @@ ffs.mkfile("bing.mp3", "bang.mp3", "bop.wav")
 <HR>
 
 ### FictusDisplay
-A FictusDisplay can output the FFS.
+A FictusDisplay outputs the FFS.
 
 ```Python
 
 from fictus import FictusDisplay
 
-ffs.cd("/")  # ensure the cwd is the root of the file system
+ffs.cd("/")  # for this example, ensure the cwd is the root of the file system
 
 # Generate a ffs structure to be printed to stdout as text.
 display = FictusDisplay(ffs)
@@ -92,7 +93,7 @@ FictusDisplay(ffs).pprint()
 ```
 
 The tree displayed starts at current working directory. The same example
-above with the current directory set to "c:/files/music" produces:
+above with the current directory set to `c:/files/music` produces:
 
 ```Text
 music\
@@ -102,10 +103,12 @@ music\
    └─ bop.wav
 ```
 
+<HR>
+
 ### Renderer
-A FictusDisplay does allow the user to customize output for the DOC, ROOT, FOLDER, and 
-FILE types.  The Renderer can be permanently reassigned by assinging to the `renderer`
-property. Here is an example that takes advantage of the built-in `emojiRenderer`.  
+A FictusDisplay allows customization of the `DOC`, `ROOT`, `FOLDER`, and `FILE` types.
+The Renderer can be permanently reassigned using the `renderer` property. Here is an
+example that takes advantage of the built-in `emojiRenderer`.  
 
 ```Python
 from fictus.renderer import emojiRenderer
@@ -113,7 +116,7 @@ from fictus.renderer import emojiRenderer
 # FictusDisplay the ffs structure after a relative change of directory to files/music
 ffs.cd("files/music")
 
-# assign a new Renderer
+# assign a new Renderer to the display - already instantiated in a previous example.
 display.renderer = emojiRenderer
 
 # ouptut with the new Renderer applied
@@ -130,9 +133,9 @@ This produces:
    └─ 📄bop.wav
 ```
 
-In the above example the renderer was updated so that each call to print will now use
-the emojiRenderer. If the main renderer is not required to be updated and its meant to
-just showcase one call in a different way the pprint() has an optional `renderer` argument.
+Previously, the `renderer` was updated so that each call to `pprint` will use
+the `emojiRenderer`. If the main renderer is not required to be updated permanently, 
+use the `pprint` optional argument - `renderer`.
 
 ```Python
 from fictus.renderer import defaultRenderer
@@ -149,9 +152,12 @@ display.pprint()
 
 ### RenderTag Customization
 Customization may be useful for creating HTML, Markdown, or other custom tags that are
-not already provided.
+not already provided. A `Renderer` can register valid `RenderTagEnum` types with 
+`RenderTag` objects.   By default, all `RenderTags` contain empty strings. The user
+can choose to override any number of tags as required.
 
-For example:
+You can create a new `Renderer` from scratch and customize the `RenderTag`s that are 
+appropriate. For example:
 
 ```Python
 from fictus.renderer import RenderTagEnum, RenderTag
@@ -171,6 +177,26 @@ Produces:
 ```Text
 + music\
 └─ + folk\
+   ├─ · bang.mp3
+   ├─ · bing.mp3
+   └─ · bop.wav
+```
+
+One can also create a new `Renderer` object starting with an already applied object and 
+updating only the Enum value of interest.
+
+```Python
+new_renderer = (
+    display.renderer
+)  # from previous examples -- this will return customRenderer
+new_renderer.register(RenderTagEnum.FOLDER, RenderTag("✓ ", ""))
+display.pprint(renderer=new_renderer)
+```
+
+And this will, as expected, generate the following:
+```
+✓ music
+└─ ✓ folk
    ├─ · bang.mp3
    ├─ · bing.mp3
    └─ · bop.wav
