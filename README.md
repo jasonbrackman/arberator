@@ -17,6 +17,8 @@ Fictus use cases include creating output for a wiki page, communicating a folder
 mocking a file/folder structure layout before committing to actual creation on disk.  Since Fictus mimics a File System,
 calling code can create complex loops to build up as little or as much as required to get an idea across.
 
+<HR>
+
 ### FictusFileSystem
 Creating a Fictus File System starts with instantiating a FicutsFileSystem object and, optionally, providing
 a name to use as the drive letter.  If one is not provided, a single slash ('/') will be used.
@@ -48,6 +50,8 @@ ffs.mkfile("resume.txt", "recipe.wrd")
 ffs.cd("../music/folk")
 ffs.mkfile("bing.mp3", "bang.mp3", "bop.wav")
 ```
+
+<HR>
 
 ### FictusDisplay
 A FictusDisplay can output the FFS.
@@ -141,7 +145,9 @@ display.pprint(renderer=defaultRenderer)
 display.pprint() 
 ```
 
-## Customization
+<HR>
+
+### RenderTag Customization
 Customization may be useful for creating HTML, Markdown, or other custom tags that are
 not already provided.
 
@@ -170,11 +176,12 @@ Produces:
    └─ · bop.wav
 ```
 
+<hr>
 
-## Install Using Pip
+### Install Using Pip
 >pip install fictus
 
-## Building/installing the Wheel locally:
+### Building/installing the Wheel locally:
 To build the package requires setuptools and build.
 >python3 -m build
 
