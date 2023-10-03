@@ -1,13 +1,13 @@
 import unittest
 
-from fictus.folder import Folder
+from fictus.fictusnode import Folder
 
 
 class MyTestCase(unittest.TestCase):
     def test_parent(self):
-        a = Folder("a")
-        b = Folder("b")
-        a.folder(b)
+        a = Folder("a", None)
+        b = Folder("b", a)
+        a.children.append(b)
         self.assertEqual(
             a,
             b.parent,

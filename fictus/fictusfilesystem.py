@@ -1,14 +1,8 @@
 import os.path
 from typing import Set, Optional
 
-from fictus.renderer import defaultRenderer, RenderTagEnum
-
-from fictus.data import Data
-
 from .fictusexception import FictusException
-from .file import File
-from .folder import Folder
-
+from .fictusnode import File, Folder, Node
 
 DEFAULT_ROOT_NAME = "\\"
 
@@ -20,7 +14,7 @@ class FictusFileSystem:
     """
 
     def __init__(self, name=DEFAULT_ROOT_NAME) -> None:
-        self._root: Folder = Folder(name.strip(""))
+        self._root: Folder = Folder(name.strip(""), None)
         self._current: Folder = self._root
 
     def root(self) -> Folder:
@@ -46,47 +40,49 @@ class FictusFileSystem:
         if normalized_path.startswith(os.sep):
             self._to_root()
 
-        folders = {d.name: d for d in self._current.folders()}
+        folders = {d.value: d for d in self._current.children}
 
         for part in normalized_path.split(os.sep):
             if not part:
                 continue
 
             if part not in folders:
-                folders[part] = Folder(part)
-                self._current.folder(folders[part])
+                folders[part] = Folder(part, self._current)
+                self._current.children.append(folders[part])
 
-            self.cd(folders[part].name)
-            folders = {d.name: d for d in self._current.folders()}
+            self.cd(folders[part].value)
+            folders = {d.value: d for d in self._current.children}
 
         # return to starting directory
         self._current = current
 
     def mkfile(self, *files: str) -> None:
         """Takes one or more filenames and adds them to the cwd."""
-        visited: Set[str] = {f.name for f in self._current.files()}
+        visited: Set[str] = {
+            f.value for f in self._current.children if isinstance(f, File)
+        }
         for file in files:
             if not file:
                 raise FictusException("A File must contain a non-empty string.")
 
             if file not in visited:
                 visited.add(file)
-                self._current.file(File(file))
+                self._current.children.append(File(file, self._current))
 
     def rename(self, old: str, new: str) -> None:
         """Renames a File or Folder based on its name."""
-        for content in self._current.contents():
-            if content.name == old:
-                content.name = new
+        for content in self._current.children:
+            if content.value == old:
+                content.value = new
                 break
 
     def cwd(self) -> str:
         """Prints the current working directory."""
         r = []
 
-        node: Optional[Data] = self._current
+        node: Optional[Node] = self._current
         while node is not None:
-            r.append(node.name)
+            r.append(node.value)
             node = node.parent
 
         if r:
@@ -112,24 +108,19 @@ class FictusFileSystem:
             if index == 0 and part.endswith(":"):
                 # explicitly saying it's a root name
                 temp_part = part.rstrip(":")
-                if temp_part == self._root.name:
+                if temp_part == self._root.value:
                     self._to_root()
                     continue
 
             if part == "..":
                 # looking at the parent here, so ensure its valid.
                 parent = self._current.parent
-
-                if parent is None or isinstance(parent, Folder) is False:
-                    self._current = current
-                    raise FictusException(
-                        f"Could not path to {normalized_path} from {self.cwd()}."
-                    )
-
-                self._current = parent
+                self._current = parent if parent is not None else self._current
 
             else:
-                hm = {f.name: f for f in self._current.folders()}
+                hm = {
+                    f.value: f for f in self._current.children if isinstance(f, Folder)
+                }
                 if part not in hm:
                     self._current = current
                     raise FictusException(

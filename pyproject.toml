@@ -1,10 +1,10 @@
 [build-system]
-requires = ["setuptools>=61.0"]
+requires = ["setuptools>=65.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "fictus"
-version = "0.2.0"
+version = "0.3.0"
 authors = [
   { name="Jason Brackman", email="brackman+fictus@gmail.com" },
 ]

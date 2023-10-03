@@ -2,12 +2,11 @@ from __future__ import annotations
 
 import re
 import sys
-from typing import List, Set, Optional
+from typing import List, Set, Optional, Tuple
 
-from .fictusfilesystem import FictusFileSystem
 from .constants import PIPE, SPACER_PREFIX, ELBOW, TEE, SPACER
-from .data import Data
-from .folder import Folder
+from .fictusfilesystem import FictusFileSystem
+from .fictusnode import Folder, Node
 from .renderer import Renderer, defaultRenderer, RenderTagEnum
 
 pattern = re.compile(r"[^\\]")
@@ -27,7 +26,7 @@ class FictusDisplay:
     def renderer(self, renderer: Renderer) -> None:
         self._renderer = renderer
 
-    def _wrap_node_name_with_tags(self, node: Data):
+    def _wrap_node_name_with_tags(self, node: Node):
         # setup defaults
         key = RenderTagEnum.FILE
 
@@ -40,9 +39,9 @@ class FictusDisplay:
 
         tags = self.renderer.tags(key)
 
-        return f"{tags.open}{node.name}{tags.close}"
+        return f"{tags.open}{node.value}{tags.close}"
 
-    def _display_node(self, node: Data, node_level_start: int) -> str:
+    def _display_node(self, node: Node, last: bool, node_level_start: int) -> str:
         """
         Bookkeeping of nested node depth, node siblings, and order in the queue are
         used to present the FicusSystem in an aesthetic way.
@@ -54,7 +53,7 @@ class FictusDisplay:
                 parts[index - 1] = SPACER + SPACER_PREFIX
 
         if parts:
-            parts[-1] = ELBOW if node.last is True else TEE
+            parts[-1] = ELBOW if last is True else TEE
 
         return f'{"".join(parts)}{self._wrap_node_name_with_tags(node)}'
 
@@ -63,38 +62,40 @@ class FictusDisplay:
 
         old_renderer, self._renderer = self._renderer, renderer or self._renderer
 
-        node = self._ffs.current()
-        node.last = True
-        node_level_start = node.level
+        node_start = self._ffs.current()
 
-        self._ignore = {i for i in range(node.level)}
+        node_level_start = node_start.level
+
+        self._ignore = {i for i in range(node_start.level)}
 
         prefix: int = -1  # not set
 
         buffer: List[str] = []
 
-        q: List[Data] = [node]
+        q: List[Tuple[Node, bool]] = [(node_start, True)]
         while q:
-            node = q.pop()
-            if node.last is False:
+            node, last = q.pop()
+            if last is False:
                 if node.level in self._ignore:
                     self._ignore.remove(node.level)
-            line = self._display_node(node, node_level_start)
+            line = self._display_node(node, last, node_level_start)
 
             # This needs to happen only once and applied
             # thereafter to each subsequent line.
             prefix = len(line) - len(line.lstrip()) if prefix == -1 else prefix
 
             buffer.append(f"{line[prefix:]}\n")
-            if node.last is True:
+            if last is True:
                 # track nodes without children.
                 self._ignore.add(node.level)
 
             if isinstance(node, Folder):
-                q += node.contents()
+                childs = [(child, False) for child in node.children]
+                if childs:
+                    c, _ = childs[0]
+                    childs[0] = (c, True)
 
-            # clear flag for next run
-            node.last = False
+                q += childs
 
         # output data
         sys.stdout.write(self._renderer.tags(RenderTagEnum.DOC).open)
