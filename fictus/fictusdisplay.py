@@ -47,7 +47,7 @@ class FictusDisplay:
         used to present the FicusSystem in an aesthetic way.
         """
 
-        parts = [PIPE + SPACER_PREFIX for _ in range(node_level_start, node.level)]
+        parts = [PIPE + SPACER_PREFIX for _ in range(node_level_start, node.height)]
         for index in self._ignore:
             if 0 < len(parts) > index - 1:
                 parts[index - 1] = SPACER + SPACER_PREFIX
@@ -64,9 +64,9 @@ class FictusDisplay:
 
         node_start = self._ffs.current()
 
-        node_level_start = node_start.level
+        node_level_start = node_start.height
 
-        self._ignore = {i for i in range(node_start.level)}
+        self._ignore = {i for i in range(node_start.height)}
 
         prefix: int = -1  # not set
 
@@ -76,8 +76,8 @@ class FictusDisplay:
         while q:
             node, last = q.pop()
             if last is False:
-                if node.level in self._ignore:
-                    self._ignore.remove(node.level)
+                if node.height in self._ignore:
+                    self._ignore.remove(node.height)
             line = self._display_node(node, last, node_level_start)
 
             # This needs to happen only once and applied
@@ -87,7 +87,7 @@ class FictusDisplay:
             buffer.append(f"{line[prefix:]}\n")
             if last is True:
                 # track nodes without children.
-                self._ignore.add(node.level)
+                self._ignore.add(node.height)
 
             if isinstance(node, Folder):
                 childs = [(child, False) for child in node.children]

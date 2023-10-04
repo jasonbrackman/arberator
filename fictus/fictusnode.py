@@ -14,21 +14,21 @@ class Node(Generic[T]):
     parent: Optional[Node]
     children: List[Node] = field(default_factory=list)
 
-    _level: int = field(init=False, default=0)
+    _height: int = field(init=False, default=0)
 
     def __post_init__(self):
         if self.parent:
-            self._level = self.parent._level + 1
+            self._height = self.parent._height + 1
 
     def __lt__(self, other: Node) -> bool:
         return self.value > other.value
 
     @property
-    def level(self) -> int:
-        return self._level
+    def height(self) -> int:
+        return self._height
 
-    @level.setter
-    def level(self, int) -> None:
+    @height.setter
+    def height(self, int) -> None:
         raise NotImplementedError("Not expected to be set externally.")
 
 
