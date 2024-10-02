@@ -2,11 +2,11 @@ from __future__ import annotations
 
 import re
 import sys
-from typing import List, Set, Optional, Tuple
+from typing import List, Set, Optional, Tuple, Union
 
 from .constants import PIPE, SPACER_PREFIX, ELBOW, TEE, SPACER
 from .fictusfilesystem import FictusFileSystem
-from .fictusnode import Folder, Node
+from .fictusnode import Folder, Node, File
 from .renderer import Renderer, defaultRenderer, RenderTagEnum
 
 pattern = re.compile(r"[^\\]")
@@ -17,6 +17,7 @@ class FictusDisplay:
         self._ffs = ffs
         self._renderer = defaultRenderer
         self._ignore: Set[int] = set()
+        self._sort: bool = False
 
     @property
     def renderer(self) -> Renderer:
@@ -25,6 +26,14 @@ class FictusDisplay:
     @renderer.setter
     def renderer(self, renderer: Renderer) -> None:
         self._renderer = renderer
+
+    @property
+    def sort(self) -> bool:
+        return self._sort
+
+    @sort.setter
+    def sort(self, sort: bool) -> None:
+        self._sort = sort
 
     def _wrap_node_name_with_tags(self, node: Node):
         # setup defaults
@@ -57,6 +66,11 @@ class FictusDisplay:
 
         return f'{"".join(parts)}{self._wrap_node_name_with_tags(node)}'
 
+    @staticmethod
+    def _custom_sort(nodes: List[Node]) -> List[Node]:
+        """Reverse sort the children by file, then name."""
+        return sorted(nodes, key=lambda x: (isinstance(x, File), x.value), reverse=True)
+
     def pprint(self, renderer: Optional[Renderer] = None) -> None:
         """Displays the file system structure to stdout."""
 
@@ -66,7 +80,7 @@ class FictusDisplay:
 
         node_level_start = node_start.height
 
-        self._ignore = {i for i in range(node_start.height)}
+        self._ignore = set(range(node_start.height))
 
         prefix: int = -1  # not set
 
@@ -78,7 +92,7 @@ class FictusDisplay:
             if last is False:
                 if node.height in self._ignore:
                     self._ignore.remove(node.height)
-            line = self._display_node(node, last, node_level_start)
+            line: str = self._display_node(node, last, node_level_start)
 
             # This needs to happen only once and applied
             # thereafter to each subsequent line.
@@ -90,12 +104,14 @@ class FictusDisplay:
                 self._ignore.add(node.height)
 
             if isinstance(node, Folder):
-                childs = [(child, False) for child in node.children]
-                if childs:
-                    c, _ = childs[0]
-                    childs[0] = (c, True)
+                children = self._custom_sort(node.children)
 
-                q += childs
+                sorted_children = [(child, False) for child in children]
+                if sorted_children:
+                    c, _ = sorted_children[0]
+                    sorted_children[0] = (c, True)
+
+                q += sorted_children
 
         # output data
         sys.stdout.write(self._renderer.tags(RenderTagEnum.DOC).open)

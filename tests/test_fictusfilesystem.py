@@ -80,7 +80,7 @@ class MyTestCase(unittest.TestCase):
 
         # with self.assertRaises(FictusException):
         self.fs.cd("../../../..")  # go back once too many times
-        print(self.root, self.fs.cwd())
+
         self.assertEqual(self.fs.cwd(), self.root)
         # still at the last place expected
         # self.assertEqual(self.fs.cwd(), self.root + "/a/b/c")
