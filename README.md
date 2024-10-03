@@ -22,7 +22,7 @@ If needed the virtual file system can be used to create a physical representatio
 <HR>
 
 ### FictusFileSystem
-A Fictus File System starts with instantiating a FicutsFileSystem object and, optionally, providing
+A Fictus File System starts with instantiating a FictusFileSystem object and, optionally, providing
 a root drive name.  If one is not provided, a single slash ('/') will be used.
 
 ```Python
