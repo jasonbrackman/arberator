@@ -18,6 +18,7 @@ Use cases include creating output for a wiki page, communicating a folder struct
 mocking a file/folder structure layout before committing to actual creation on disk.  Since Fictus mimics a File System,
 calling code can create complex loops to build up as little or as much as required to get an idea across.
 
+If needed the virtual file system can be used to create a physical representation on the physical disk.
 <HR>
 
 ### FictusFileSystem
@@ -103,6 +104,16 @@ music\
    └─ bop.wav
 ```
 
+The display can also be used to generate a physical representation of the Fictus File System. 
+
+```Python
+from pathlib import Path
+path = Path("c:\\fictus")
+FictusDisplay(ffs).reforestation(path)
+```
+
+This will create all folders and files represented in the FFS under the `path` provided. File internals will be \
+an empty `utf-8` string.
 <HR>
 
 ### Renderer

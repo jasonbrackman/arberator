@@ -1,7 +1,9 @@
 from __future__ import annotations
 
+import os
 import re
 import sys
+from pathlib import Path
 from typing import List, Set, Optional, Tuple, Union
 
 from .constants import PIPE, SPACER_PREFIX, ELBOW, TEE, SPACER
@@ -17,7 +19,6 @@ class FictusDisplay:
         self._ffs = ffs
         self._renderer = defaultRenderer
         self._ignore: Set[int] = set()
-        self._sort: bool = False
 
     @property
     def renderer(self) -> Renderer:
@@ -26,14 +27,6 @@ class FictusDisplay:
     @renderer.setter
     def renderer(self, renderer: Renderer) -> None:
         self._renderer = renderer
-
-    @property
-    def sort(self) -> bool:
-        return self._sort
-
-    @sort.setter
-    def sort(self, sort: bool) -> None:
-        self._sort = sort
 
     def _wrap_node_name_with_tags(self, node: Node):
         # setup defaults
@@ -69,7 +62,7 @@ class FictusDisplay:
     @staticmethod
     def _custom_sort(nodes: List[Node]) -> List[Node]:
         """Reverse sort the children by file, then name."""
-        return sorted(nodes, key=lambda x: (isinstance(x, File), x.value), reverse=True)
+        return sorted(nodes, key=lambda x: (isinstance(x, File), x.value.lower()), reverse=True)
 
     def pprint(self, renderer: Optional[Renderer] = None) -> None:
         """Displays the file system structure to stdout."""
@@ -103,13 +96,11 @@ class FictusDisplay:
                 # track nodes without children.
                 self._ignore.add(node.height)
 
-            if isinstance(node, Folder):
+            if isinstance(node, Folder) and node.children:
                 children = self._custom_sort(node.children)
-
                 sorted_children = [(child, False) for child in children]
-                if sorted_children:
-                    c, _ = sorted_children[0]
-                    sorted_children[0] = (c, True)
+                c, _ = sorted_children[0]
+                sorted_children[0] = (c, True)
 
                 q += sorted_children
 
@@ -120,3 +111,42 @@ class FictusDisplay:
 
         # reset renderer to what it was
         self._renderer = old_renderer
+
+    # Reforestation methods - - - - - - -
+    @staticmethod
+    def _reforestation_path(node) -> str:
+        parts = []
+        while node:
+            parts.append(node.value)
+            node = node.parent
+        return '//'.join(reversed(parts))
+
+    def reforestation(self, path: Path) -> None:
+        """
+        Take the Fictus File System and generate the structure on disk using the path
+        passed in as the root.
+        """
+        node_start = self._ffs.current()
+        q: List[Tuple[Node, bool]] = [(node_start, True)]
+        while q:
+            node, last = q.pop()
+            if last is False:
+                if node.height in self._ignore:
+                    self._ignore.remove(node.height)
+
+            real_path = path / self._reforestation_path(node)
+            if isinstance(node, Folder):
+                real_path.mkdir(parents=True, exist_ok=True)
+            else:
+                with real_path.open("w", encoding="utf-8") as f:
+                    f.write('')
+
+            if isinstance(node, Folder):
+                children = self._custom_sort(node.children)
+
+                sorted_children = [(child, False) for child in children]
+                if sorted_children:
+                    c, _ = sorted_children[0]
+                    sorted_children[0] = (c, True)
+
+                q += sorted_children
