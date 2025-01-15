@@ -1,10 +1,9 @@
 from __future__ import annotations
 
-import os
 import re
 import sys
 from pathlib import Path
-from typing import List, Set, Optional, Tuple, Union
+from typing import List, Set, Optional, Tuple
 
 from .constants import PIPE, SPACER_PREFIX, ELBOW, TEE, SPACER
 from .fictusfilesystem import FictusFileSystem
@@ -121,7 +120,7 @@ class FictusDisplay:
             node = node.parent
         return '//'.join(reversed(parts))
 
-    def reforestation(self, path: Path) -> None:
+    def reforestation(self, path: Path, encoding='utf-8') -> None:
         """
         Take the Fictus File System and generate the structure on disk using the path
         passed in as the root.
@@ -138,7 +137,7 @@ class FictusDisplay:
             if isinstance(node, Folder):
                 real_path.mkdir(parents=True, exist_ok=True)
             else:
-                with real_path.open("w", encoding="utf-8") as f:
+                with real_path.open("w", encoding=encoding) as f:
                     f.write('')
 
             if isinstance(node, Folder):
