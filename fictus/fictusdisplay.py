@@ -49,13 +49,14 @@ class FictusDisplay:
         """
 
         parts = [PIPE + SPACER_PREFIX for _ in range(node_level_start, node.height)]
+        # print('\t', node_level_start, node.height, parts, self._ignore)
         for index in self._ignore:
             if 0 < len(parts) > index - 1:
                 parts[index - 1] = SPACER + SPACER_PREFIX
 
         if parts:
             parts[-1] = ELBOW if last is True else TEE
-
+        # print("\tFINAL PARTS:", parts)
         return f'{"".join(parts)}{self._wrap_node_name_with_tags(node)}'
 
     @staticmethod
@@ -70,9 +71,11 @@ class FictusDisplay:
 
         node_start = self._ffs.current()
 
+        # sometimes the height starts offset from the start, so account for that
+        offset = node_start.height
         node_level_start = node_start.height
 
-        self._ignore = set(range(node_start.height))
+        self._ignore = set()
 
         prefix: int = -1  # not set
 
@@ -93,7 +96,7 @@ class FictusDisplay:
             buffer.append(f"{line[prefix:]}\n")
             if last is True:
                 # track nodes without children.
-                self._ignore.add(node.height)
+                self._ignore.add(node.height - offset)
 
             if isinstance(node, Folder) and node.children:
                 children = self._custom_sort(node.children)
