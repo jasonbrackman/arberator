@@ -33,14 +33,14 @@ class Renderer:
 
 defaultRenderer = Renderer()
 defaultRenderer.register(RenderTagEnum.DOC, RenderTag("", "\n"))
-defaultRenderer.register(RenderTagEnum.ROOT, RenderTag("", ":\\"))
+defaultRenderer.register(RenderTagEnum.ROOT, RenderTag("", "\\"))
 defaultRenderer.register(RenderTagEnum.FOLDER, RenderTag("", "\\"))
 
 markdownRenderer = Renderer()
 markdownRenderer.register(
     RenderTagEnum.DOC, RenderTag('<pre style="line-height:17px\n">', "</pre>")
 )
-defaultRenderer.register(RenderTagEnum.ROOT, RenderTag("", ":\\"))
+defaultRenderer.register(RenderTagEnum.ROOT, RenderTag("", "\\"))
 defaultRenderer.register(RenderTagEnum.FOLDER, RenderTag("", "\\"))
 markdownRenderer.register(
     RenderTagEnum.FILE, RenderTag('<span style="color:gray">', "</span>")
@@ -49,6 +49,6 @@ markdownRenderer.register(
 
 emojiRenderer = Renderer()
 emojiRenderer.register(RenderTagEnum.DOC, RenderTag("", "\n"))
-emojiRenderer.register(RenderTagEnum.ROOT, RenderTag("🏡", ":"))
+emojiRenderer.register(RenderTagEnum.ROOT, RenderTag("🏡", "\\"))
 emojiRenderer.register(RenderTagEnum.FILE, RenderTag("📄", ""))
 emojiRenderer.register(RenderTagEnum.FOLDER, RenderTag("📁", ""))

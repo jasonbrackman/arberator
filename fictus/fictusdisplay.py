@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import re
 import sys
 from pathlib import Path
 from typing import List, Set, Optional, Tuple
@@ -9,8 +8,6 @@ from .constants import PIPE, SPACER_PREFIX, ELBOW, TEE, SPACER
 from .fictusfilesystem import FictusFileSystem
 from .fictusnode import Folder, Node, File
 from .renderer import Renderer, defaultRenderer, RenderTagEnum
-
-pattern = re.compile(r"[^\\]")
 
 
 class FictusDisplay:
@@ -49,14 +46,14 @@ class FictusDisplay:
         """
 
         parts = [PIPE + SPACER_PREFIX for _ in range(node_level_start, node.height)]
-        # print('\t', node_level_start, node.height, parts, self._ignore)
+
         for index in self._ignore:
             if 0 < len(parts) > index - 1:
                 parts[index - 1] = SPACER + SPACER_PREFIX
 
         if parts:
             parts[-1] = ELBOW if last is True else TEE
-        # print("\tFINAL PARTS:", parts)
+
         return f'{"".join(parts)}{self._wrap_node_name_with_tags(node)}'
 
     @staticmethod
@@ -92,7 +89,6 @@ class FictusDisplay:
             # This needs to happen only once and applied
             # thereafter to each subsequent line.
             prefix = len(line) - len(line.lstrip()) if prefix == -1 else prefix
-
             buffer.append(f"{line[prefix:]}\n")
             if last is True:
                 # track nodes without children.

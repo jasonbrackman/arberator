@@ -1,8 +1,10 @@
+from pathlib import Path
+
 from fictus import FictusDisplay, FictusFileSystem, Renderer
 from fictus.renderer import emojiRenderer, RenderTag, RenderTagEnum
 
 # Create a FictusFileSystem.
-ffs = FictusFileSystem("c")
+ffs = FictusFileSystem("c:")
 
 # Create some files in the current working directory.
 ffs.mkfile("README.md", "LICENSE.md", ".ignore")

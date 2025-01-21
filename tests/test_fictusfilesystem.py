@@ -9,7 +9,7 @@ class MyTestCase(unittest.TestCase):
     root = "c:"
 
     def setUp(self) -> None:
-        self.fs = FictusFileSystem("c")
+        self.fs = FictusFileSystem("c:")
 
     def test_cd_back_one(self):
         self.fs.mkdir(r"a\b")  # create \\a\b
@@ -105,6 +105,9 @@ class MyTestCase(unittest.TestCase):
         self.fs.cd("/fizz/./././././././././.")  # still fine.
         self.assertEqual(os.sep.join([self.root, "fizz"]), self.fs.cwd())
 
+    def test_invalid_root(self):
+        with self.assertRaises(FictusException):
+            FictusFileSystem("c")
 
 if __name__ == "__main__":
     unittest.main()

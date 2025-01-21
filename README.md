@@ -3,7 +3,7 @@
 Use `Fictus` to create and output a fictitious file system for sharing in a text driven format.
 
 ```Text
-🏡kitchen
+🏡kitchen:\
 └─ 📁drawer
    ├─ 📁forks
    │  ├─ 📁old
@@ -29,7 +29,7 @@ a root drive name.  If one is not provided, a single slash ('/') will be used.
 from fictus import FictusFileSystem
 
 # Create a FictusFileSystem.
-ffs = FictusFileSystem("c")
+ffs = FictusFileSystem("c:")
 ```
 
 The object can then be built up using creation methods, such as `mdir` and `mkfile` and folder traversal can occur
@@ -52,7 +52,19 @@ ffs.mkfile("resume.txt", "recipe.wrd")
 ffs.cd("../music/folk")
 ffs.mkfile("bing.mp3", "bang.mp3", "bop.wav")
 ```
+<HR>
 
+A FictusFileSystem can also be generated based on a real world drive setup. If needed, additional
+edits can be made after to add or rename data.
+
+```Python
+from pathlib import Path  # this class method requires a Path object
+
+from fictus import FictusFileSystem
+
+local_path = Path(r"c:\temp")
+ffs = FictusFileSystem.init_from_path(local_path)
+```
 <HR>
 
 ### FictusDisplay
