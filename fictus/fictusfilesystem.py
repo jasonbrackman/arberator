@@ -2,6 +2,7 @@
 
 import os.path
 from pathlib import Path
+import platform
 from typing import Set, Optional
 
 from .fictusexception import FictusException
@@ -27,7 +28,7 @@ class FictusFileSystem:
             return
 
         raise FictusException(
-            f"A root folder must be \"{os.sep}\" or end with a colon, like \"d:\""
+            f'A root folder must be "{os.sep}" or end with a colon, like "d:"'
         )
 
     @classmethod
@@ -40,7 +41,17 @@ class FictusFileSystem:
 
         @return FictusFileSystem
         """
-        ffs = FictusFileSystem(path.drive)
+
+        def get_volume_name(path: Path):
+            # Create a Path object
+            if platform.system() == "Windows":
+                # Use drive for Windows
+                return path.drive  # e.g., "C:"
+            else:
+                # Use anchor for macOS/Linux
+                return path.anchor  # e.g., "/Volumes/MyDrive/"
+
+        ffs = FictusFileSystem(get_volume_name(path))
 
         if path.is_file():
             ffs.add_directory_and_file(path.as_posix())
@@ -71,7 +82,7 @@ class FictusFileSystem:
 
     @staticmethod
     def _normalize(path: str) -> str:
-        return os.path.normpath(path.replace('\\', os.sep))
+        return os.path.normpath(path.replace("\\", os.sep))
 
     @staticmethod
     def _validate(path: str) -> None:
@@ -179,7 +190,9 @@ class FictusFileSystem:
             if part == "..":
                 # looking at the parent here, so ensure its valid.
                 if isinstance(self._current.parent, Folder):
-                    assert isinstance(self._current.parent, Folder) is True  # for typing
+                    assert (
+                        isinstance(self._current.parent, Folder) is True
+                    )  # for typing
                     self._current = self._current.parent
             else:
                 hm = {
